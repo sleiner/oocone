@@ -4,11 +4,7 @@ name: Documentation
 on:
     push:
         branches:
-            - master
             - main
-        paths:
-            - '*.md'
-            - docs/**
     pull_request:
 
 jobs:
