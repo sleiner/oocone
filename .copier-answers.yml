@@ -1,0 +1,19 @@
+---
+# Changes here will be overwritten by Copier
+_commit: 0.4.0
+_src_path: https://github.com/pdm-project/copier-pdm.git
+author_email: simon@leiner.me
+author_fullname: Simon Leiner
+author_username: sleiner
+build_doc: true
+copyright_date: '2024'
+copyright_holder: Simon Leiner
+copyright_holder_email: simon@leiner.me
+copyright_license: ISC
+project_description: Unofficial library for interacting with an enocoo energy management system
+project_name: oocone
+python_package_distribution_name: oocone
+python_package_import_name: oocone
+python_package_requires_python: '>=3.11'
+repository_name: oocone
+repository_namespace: sleiner

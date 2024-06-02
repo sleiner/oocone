@@ -1,0 +1,131 @@
+[project]
+name = "oocone"
+description = "Unofficial library for interacting with an enocoo energy management system"
+authors = [{ name = "Simon Leiner", email = "simon@leiner.me" }]
+license = { text = "ISC" }
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["aiohttp>=3.9.4", "beautifulsoup4>=4.12.3"]
+dynamic = ["version"]
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3",
+]
+
+[project.urls]
+Repository = "https://github.com/sleiner/oocone"
+Homepage = "https://github.com/sleiner/oocone"
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[tool.pdm.version]
+source = "scm"
+
+[tool.pdm.build]
+package-dir = "src"
+
+[tool.pdm.dev-dependencies]
+test = [
+    "pytest>=8.1.1",
+    "pytest-aiohttp>=1.0.5",
+    "pytest-asyncio>=0.23.6",
+    "pytest-cov>=5.0.0",
+    "typeguard>=4.2.1",
+]
+dev = ["towncrier>=23.11.0", "parver>=0.5"]
+doc = ["mkdocs>=1.5.3", "mkdocs-material>=9.5.17"]
+
+[tool.pdm.scripts]
+release = "python -m tasks.release"
+update_api_responses = "python -m tasks.update_api_responses"
+test = "pytest tests/"
+doc = { shell = "cd docs && mkdocs serve", help = "Start the dev server for doc preview" }
+lint = "pre-commit run --all-files"
+
+[tool.pytest.ini_options]
+markers = [
+    "mocked_api: mark test as using a mock of the enocoo website",
+]
+addopts = "--typeguard-packages=oocone --cov=oocone --cov-report=html"
+
+[tool.ruff]
+line-length = 100
+src = ["src"]
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "B",    # flake8-bugbear
+    "C4",   # flake8-comprehensions
+    "E",    # pycodestyle
+    "F",    # pyflakes
+    "I001", # isort
+    "PGH",  # pygrep-hooks
+    "RUF",  # ruff
+    "TCH",  # moving imports to type-checking blocks
+    "W",    # pycodestyle
+    "YTT",  # flake8-2020
+]
+extend-ignore = ["B018", "B019"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.isort]
+known-first-party = ["oocone"]
+
+[tool.mypy]
+follow_imports = "silent"
+disallow_incomplete_defs = true
+disallow_untyped_defs = true
+disallow_untyped_decorators = true
+namespace_packages = true
+mypy_path = "src"
+explicit_package_bases = true
+
+[[tool.mypy.overrides]]
+module = ["pytest_aiohttp.plugin"]
+ignore_missing_imports = true
+
+[tool.towncrier]
+package = "oocone"
+filename = "CHANGELOG.md"
+issue_format = "[#{issue}](https://github.com/sleiner/oocone/issues/{issue})"
+directory = "news/"
+start_string = "<!-- insertion marker -->"
+title_format = "[v{version}](https://github.com/sleiner/oocone/releases/tag/{version}) ({project_date})"
+template = "news/towncrier_template.md"
+underlines = "-~^"
+
+[[tool.towncrier.type]]
+directory = "feature"
+name = "Features & Improvements"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "bugfix"
+name = "Bug Fixes"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "doc"
+name = "Improved Documentation"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "dep"
+name = "Dependencies"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "removal"
+name = "Removals and Deprecations"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "misc"
+name = "Miscellaneous"
+showcontent = true
