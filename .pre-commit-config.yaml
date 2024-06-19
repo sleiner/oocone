@@ -16,8 +16,8 @@ repos:
       hooks:
           - id: yamlfmt
 
-    - repo: https://github.com/charliermarsh/ruff-pre-commit
-      rev: v0.3.7
+    - repo: https://github.com/astral-sh/ruff-pre-commit
+      rev: v0.4.9
       hooks:
           - id: ruff
             args: [--fix, --exit-non-zero-on-fix, --show-fixes]
