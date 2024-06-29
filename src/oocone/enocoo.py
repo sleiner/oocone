@@ -3,13 +3,15 @@
 from __future__ import annotations
 
 import logging
+from datetime import datetime, tzinfo
 from typing import Any, Literal
 
 import aiohttp
 from bs4 import BeautifulSoup
 
 from oocone import errors
-from oocone.types import UNKNOWN, TrafficLightColor, TrafficLightStatus
+from oocone._internal.html_table import parse_table
+from oocone.types import UNKNOWN, MeterStatus, TrafficLightColor, TrafficLightStatus
 
 ROUTE_LOGIN = "/signinForm.php?mode=ok"
 BEAUTIFULSOUP_PARSER = "html.parser"
@@ -37,7 +39,12 @@ class Auth:
 
     @staticmethod
     def _response_indicates_not_logged_in(response: BeautifulSoup) -> bool:
-        return response.find("input", {"type": "password"}) is not None
+        if response.title is not None and "abgemeldet" in response.title.text.lower():
+            return True
+        if response.find("input", {"type": "password"}) is not None:
+            return True
+
+        return False
 
     async def _login(self) -> None:
         async with self._session.post(
@@ -67,8 +74,8 @@ class Auth:
 
         if self._response_indicates_not_logged_in(soup):
             if retry_with_login:
-                self._login()
-                return await self.request(method=method, retry_with_login=False, **kwargs)
+                await self._login()
+                return await self.request(method, path, retry_with_login=False, **kwargs)
 
             raise errors.AuthenticationFailed
 
@@ -78,9 +85,20 @@ class Auth:
 class Enocoo:
     """Provides access to the data accessible via the enocoo Web interface."""
 
-    def __init__(self, auth: Auth) -> None:
-        """Initialize the API and store the auth so we can make requests."""
+    def __init__(self, auth: Auth, timezone: tzinfo) -> None:
+        """
+        Initialize the API and store the auth so we can make requests.
+
+        Parameters
+        ----------
+        auth
+            Indicates how to contact the enocoo dashboard, including URL and credentials.
+        timezone
+            The timezone in which the building of the energy management system is located.
+
+        """
         self.auth = auth
+        self.timezone = timezone
 
     @staticmethod
     def __extract_key_from_response(response_data: dict[str, Any], key: str) -> Any:
@@ -143,3 +161,49 @@ class Enocoo:
             color=parse_color(response_data),
             current_energy_price=parse_current_energy_price(response_data),
         )
+
+    async def get_meter_table(self) -> list[MeterStatus]:
+        """Return the status of all individual consumption meters available in the dashboard."""
+        response, soup = await self.auth.request("GET", "php/newMeterTable.php")
+        html_table = soup.find("table")
+        meter_table = parse_table(html_table)
+
+        def parse_timestamp(timestamp: str) -> datetime:
+            dateformat = r"%d.%m.%Y %H:%M:%S"
+            return datetime.strptime(timestamp, dateformat).replace(tzinfo=self.timezone)
+
+        def parse_reading(reading: str) -> float:
+            # The reading uses german number formatting with a comma as the decimal separator and a
+            # dot as the thousands separator. The convention used by float is a dot as the decimal
+            # separator and comma as the thousands separator.abs
+
+            reading = reading.replace(".", "")  # we don't need a thousands separator here
+            reading = reading.replace(",", ".")
+
+            return float(reading)
+
+        def parse_unit(text: str) -> str:
+            if text == "m3":  # noqa: SIM108
+                result = "m³"
+            else:
+                result = text
+
+            return result
+
+        result = []
+        for row in meter_table.rows:
+            try:
+                meter_status = MeterStatus(
+                    name=row["Bezeichnung"],
+                    area=row["Fläche"],
+                    meter_id=row["Zähler-Nr."],
+                    timestamp=parse_timestamp(row["Zeitpunkt"]),
+                    reading=parse_reading(row["Zählerstand"]),
+                    unit=parse_unit(row["Einheit"]),
+                )
+            except Exception as e:
+                raise errors.UnexpectedResponse from e
+
+            result.append(meter_status)
+
+        return result

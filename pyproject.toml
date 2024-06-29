@@ -37,6 +37,7 @@ test = [
     "pytest-asyncio>=0.23.7",
     "pytest-cov>=5.0.0",
     "typeguard>=4.3.0",
+    "tzdata>=2024.1",
 ]
 dev = [
     "towncrier>=23.11.0",
