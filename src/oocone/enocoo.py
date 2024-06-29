@@ -45,7 +45,7 @@ class Auth:
             if self.response_indicates_not_logged_in(soup):
                 raise errors.AuthenticationFailed
 
-    async def _request(
+    async def request(
         self, method: str, path: str, retry_with_login: bool = True, **kwargs
     ) -> (aiohttp.ClientResponse, BeautifulSoup):
         """Make a request."""
@@ -60,7 +60,7 @@ class Auth:
         if self.response_indicates_not_logged_in(soup):
             if retry_with_login:
                 self._login()
-                return await self._request(method=method, retry_with_login=False, **kwargs)
+                return await self.request(method=method, retry_with_login=False, **kwargs)
             else:
                 raise errors.AuthenticationFailed()
         else:
@@ -88,7 +88,7 @@ class Enocoo:
         return result
 
     async def get_traffic_light_status(self):
-        response, _ = await self.auth._request("GET", "php/getTrafficLightStatus.php")
+        response, _ = await self.auth.request("GET", "php/getTrafficLightStatus.php")
 
         try:
             # We parse the response as JSON, even though the Content-Type header might indicate
