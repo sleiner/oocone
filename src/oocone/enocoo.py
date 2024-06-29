@@ -1,3 +1,5 @@
+"""Module containing the main API entry points for this module."""
+
 from __future__ import annotations
 
 import logging
@@ -16,6 +18,8 @@ logger = logging.getLogger(__name__)
 
 
 class Auth:
+    """Acquires authentication for the dashboard and makes authenticated requests."""
+
     def __init__(
         self,
         *,
@@ -23,7 +27,8 @@ class Auth:
         base_url: str,
         username: str,
         password: str,
-    ):
+    ) -> None:
+        """Initialize."""
         self._base_url = base_url.rstrip("/")
         self.__username = username
         self.__password = password
@@ -31,7 +36,7 @@ class Auth:
         self._logged_in = False
 
     @staticmethod
-    def response_indicates_not_logged_in(response: BeautifulSoup) -> bool:
+    def _response_indicates_not_logged_in(response: BeautifulSoup) -> bool:
         return response.find("input", {"type": "password"}) is not None
 
     async def _login(self) -> None:
@@ -42,35 +47,38 @@ class Auth:
             response_text = await response.text()
 
             soup = BeautifulSoup(response_text, features=BEAUTIFULSOUP_PARSER)
-            if self.response_indicates_not_logged_in(soup):
+            if self._response_indicates_not_logged_in(soup):
                 raise errors.AuthenticationFailed
 
     async def request(
-        self, method: str, path: str, retry_with_login: bool = True, **kwargs
+        self, method: str, path: str, *, retry_with_login: bool = True, **kwargs: dict
     ) -> (aiohttp.ClientResponse, BeautifulSoup):
         """Make a request."""
+        try:
+            response = await self._session.request(
+                method,
+                f"{self._base_url}/{path}",
+                **kwargs,
+            )
+        except aiohttp.client_exceptions.ClientError as e:
+            raise errors.ConnectionIssue from e
 
-        response = await self._session.request(
-            method,
-            f"{self._base_url}/{path}",
-            **kwargs,
-        )
         soup = BeautifulSoup(await response.text(), BEAUTIFULSOUP_PARSER)
 
-        if self.response_indicates_not_logged_in(soup):
+        if self._response_indicates_not_logged_in(soup):
             if retry_with_login:
                 self._login()
                 return await self.request(method=method, retry_with_login=False, **kwargs)
-            else:
-                raise errors.AuthenticationFailed()
-        else:
-            return (response, soup)
+
+            raise errors.AuthenticationFailed
+
+        return (response, soup)
 
 
 class Enocoo:
-    """Provides access to the data accessible via the enocoo Web interface"""
+    """Provides access to the data accessible via the enocoo Web interface."""
 
-    def __init__(self, auth: Auth):
+    def __init__(self, auth: Auth) -> None:
         """Initialize the API and store the auth so we can make requests."""
         self.auth = auth
 
@@ -79,26 +87,25 @@ class Enocoo:
         try:
             result = response_data[key]
         except KeyError:
-            raise KeyError(
+            msg = (
                 f'API response does not contain key "{key}".\n'
                 f"Response data:\n"
                 f"{response_data}"
-            ) from None
+            )
+            raise KeyError(msg) from None
 
         return result
 
-    async def get_traffic_light_status(self):
-        try:
-            response, _ = await self.auth.request("GET", "php/getTrafficLightStatus.php")
-        except aiohttp.client_exceptions.ClientError as e:
-            raise errors.ConnectionError() from e
+    async def get_traffic_light_status(self) -> TrafficLightStatus:
+        """Return the status of the energy traffic light."""
+        response, _ = await self.auth.request("GET", "php/getTrafficLightStatus.php")
 
         try:
             # We parse the response as JSON, even though the Content-Type header might indicate
             # otherwise.
             response_data = await response.json(content_type=None)
         except Exception as e:
-            raise errors.UnexpectedResponse() from e
+            raise errors.UnexpectedResponse from e
 
         def parse_color(response_data: dict) -> TrafficLightColor | Literal[UNKNOWN]:
             try:
@@ -114,7 +121,7 @@ class Enocoo:
             if raw == r"grün":
                 return TrafficLightColor.GREEN
 
-            logger.warning(f'Got unexpected color: "{raw}"')
+            logger.warning('Got unexpected color: "%s", raw')
             return UNKNOWN
 
         def parse_current_energy_price(response_data: dict) -> float | Literal[UNKNOWN]:
@@ -126,14 +133,13 @@ class Enocoo:
 
             try:
                 result = float(raw)
-            except Exception:
-                logger.warning("Could not parse energy price %s as a number")
+            except ValueError:
+                logger.warning("Could not parse energy price %s as a number", raw)
                 return UNKNOWN
 
             return result
 
-        result = TrafficLightStatus(
+        return TrafficLightStatus(
             color=parse_color(response_data),
             current_energy_price=parse_current_energy_price(response_data),
         )
-        return result

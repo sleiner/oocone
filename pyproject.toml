@@ -58,18 +58,38 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = [
-    "B",    # flake8-bugbear
-    "C4",   # flake8-comprehensions
-    "E",    # pycodestyle
-    "F",    # pyflakes
-    "I001", # isort
-    "PGH",  # pygrep-hooks
-    "RUF",  # ruff
-    "TCH",  # moving imports to type-checking blocks
-    "W",    # pycodestyle
-    "YTT",  # flake8-2020
+    "ALL"
 ]
-extend-ignore = ["B018", "B019"]
+
+ignore = [
+    "ANN101", # Missing type annotation for `self` in method
+    "ANN401", # Dynamically typed expressions (typing.Any) are disallowed
+    "COM812", # incompatible with formatter
+    "D203",   # no-blank-line-before-class (incompatible with formatter)
+    "D212",   # multi-line-summary-first-line (incompatible with formatter)
+    "ISC001", # incompatible with formatter
+    "N818",   # fully custom names for exceptions are fine
+]
+
+[tool.ruff.lint.per-file-ignores]
+"noxfile.py" = [
+    "D", # noxfile.py does not need to be documented
+]
+"tasks/*.py" = [
+    "D103",   # all of these are scripts, without any public API
+    "INP001", # this is not a namespace package
+]
+"tasks/release.py" = [
+    # This source code is inherited from the template.
+    # We want to avoid changing it to adapt to lints.
+    "ALL",
+]
+"tests/**" = [
+    "D104", # we do not need module docstrings for the tests
+    "S101", # assert is allowed in tests
+    "SLF001", # accessing private members is fine in unit tests
+]
+
 
 [tool.ruff.lint.mccabe]
 max-complexity = 10

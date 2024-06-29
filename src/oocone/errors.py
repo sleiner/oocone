@@ -1,8 +1,11 @@
+"""Defines exceptions specific to this module."""
+
+
 class OoconeError(Exception):
     """Base class for oocone."""
 
 
-class ConnectionError(OoconeError):
+class ConnectionIssue(OoconeError):
     """Could not connect to the enocoo website."""
 
 
@@ -11,4 +14,4 @@ class AuthenticationFailed(OoconeError):
 
 
 class UnexpectedResponse(OoconeError):
-    """Got unexpected data back from the enocoo website"""
+    """Got unexpected data back from the enocoo website."""
