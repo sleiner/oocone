@@ -9,8 +9,6 @@ from aiohttp.test_utils import TestClient
 from aiohttp.typedefs import Handler
 from pytest_aiohttp.plugin import AiohttpClient
 
-from oocone import Auth
-
 from . import RESPONSES_DIR
 
 pytest_plugins = ("pytest_asyncio",)
@@ -76,8 +74,12 @@ def mock_api(event_loop: AbstractEventLoop, aiohttp_client: AiohttpClient) -> Te
 
 
 @pytest.fixture()
-def mock_auth(mock_api: TestClient) -> Auth:
+def mock_auth(mock_api: TestClient):  # noqa: ANN201
     """Return an Auth instance accessing a mock API."""
+    # Importing oocone directly inside conftest.py breaks the typeguard plugin for pytest,
+    # so we import it lazily. Because of this, we cannot give a return type hint :(
+    from oocone import Auth
+
     return Auth(
         websession=mock_api.session,
         base_url=str(mock_api.server.make_url("/")),
