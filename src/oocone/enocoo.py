@@ -88,7 +88,10 @@ class Enocoo:
         return result
 
     async def get_traffic_light_status(self):
-        response, _ = await self.auth.request("GET", "php/getTrafficLightStatus.php")
+        try:
+            response, _ = await self.auth.request("GET", "php/getTrafficLightStatus.php")
+        except aiohttp.client_exceptions.ClientError as e:
+            raise errors.ConnectionError() from e
 
         try:
             # We parse the response as JSON, even though the Content-Type header might indicate
