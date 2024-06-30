@@ -1,17 +1,28 @@
+"""
+Updates the API response snapshots under tests/data/responses/.
+
+Before executing it, be sure to set these env variables:
+    - ENOCOO_BASE_URL
+    - ENOCOO_USERNAME
+    - ENOCOO_PASSWORD
+"""
+
 import asyncio
 import os
 import re
 from collections import OrderedDict
 from itertools import count
 from pathlib import Path
+from typing import TypeVar
 
 import aiohttp
 
 PROJECT_DIR = Path(__file__).parent.parent
 RESPONSES_DIR = PROJECT_DIR / "tests" / "data" / "responses"
-BASE_URL = "https://example.com"
+BASE_URL = os.environ["ENOCOO_BASE_URL"].rstrip("/")
 
 limit_concurrent_requests = asyncio.Semaphore(3)
+T = TypeVar("T")
 
 
 async def post_login(
@@ -28,8 +39,7 @@ async def post_login(
             data={"user": username, "passwort": password},
         ) as response,
     ):
-        text = await response.text()
-    return text
+        return await response.text()
 
 
 async def get(path: str, *, session: aiohttp.ClientSession | None = None) -> str:
@@ -38,11 +48,10 @@ async def get(path: str, *, session: aiohttp.ClientSession | None = None) -> str
             return await get(path, session=temp_session)
 
     async with limit_concurrent_requests, session.get(f"{BASE_URL}/{path}") as response:
-        text = await response.text()
-    return text
+        return await response.text()
 
 
-async def async_id(x):
+async def async_id(x: T) -> T:
     return x
 
 
@@ -62,13 +71,10 @@ def anonymize_new_meter_table(original_html: str) -> str:
     # meter values
     html = re.sub(r"[\d\.]+,\d{2}", "1.234,56", html)
 
-    return html
+    return html  # noqa: RET504
 
 
 async def main() -> None:
-    global BASE_URL
-    BASE_URL = os.environ["ENOCOO_BASE_URL"].rstrip("/")
-
     username = os.environ["ENOCOO_USERNAME"]
     password = os.environ["ENOCOO_PASSWORD"]
 
@@ -98,7 +104,7 @@ async def main() -> None:
 
     RESPONSES_DIR.mkdir(parents=True, exist_ok=True)
     for name, response in responses.items():
-        with open(RESPONSES_DIR / name, "w", encoding="utf-8") as f:
+        with Path.open(RESPONSES_DIR / name, "w", encoding="utf-8") as f:
             f.write(response)
 
 
