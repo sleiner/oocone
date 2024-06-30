@@ -164,7 +164,11 @@ class Enocoo:
 
     async def get_meter_table(self) -> list[MeterStatus]:
         """Return the status of all individual consumption meters available in the dashboard."""
-        response, soup = await self.auth.request("GET", "php/newMeterTable.php")
+        response, soup = await self.auth.request(
+            "POST",
+            "php/newMeterTable.php",
+            data={"dateParam": datetime.now(tz=self.timezone).date().isoformat()},
+        )
         html_table = soup.find("table")
         meter_table = parse_table(html_table)
 

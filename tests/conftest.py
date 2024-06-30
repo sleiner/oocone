@@ -66,7 +66,7 @@ def mock_api(event_loop: AbstractEventLoop, aiohttp_client: AiohttpClient) -> Te
         "/php/getTrafficLightStatus.php",
         _response_from_file("getTrafficLightStatus.php", needs_login=False),
     )
-    app.router.add_get(
+    app.router.add_post(
         "/php/newMeterTable.php",
         _response_from_file("newMeterTable.php", needs_login=True),
     )
