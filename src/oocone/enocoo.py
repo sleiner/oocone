@@ -41,7 +41,7 @@ class Auth:
     def _response_indicates_not_logged_in(response: BeautifulSoup) -> bool:
         if response.title is not None and "abgemeldet" in response.title.text.lower():
             return True
-        if response.find("input", {"type": "password"}) is not None:
+        if response.find("input", {"type": "password"}) is not None:  # noqa: SIM103
             return True
 
         return False
