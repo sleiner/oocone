@@ -55,21 +55,40 @@ async def async_id(x: T) -> T:
     return x
 
 
-def anonymize_new_meter_table(original_html: str) -> str:
+def anonymize(original_html: str) -> str:
     html = original_html
 
     # dwelling unit number
     html = re.sub(r"H\d{2}W\d{2}", "H12W34", html)
 
+    # account ID
+    html = re.sub(r"H\d{2}W\d{2}_\d{2}", "H12W34_01", html)
+
+    # area ID
+    html = re.sub(
+        r'var chosenResidenceId = "(\d+)";',
+        r'var chosenResidenceId = "123";',
+        html,
+    )
+
     # meter numbers
     meter_numbers = count(start=1)
-    html = re.sub(r"\d{8}", lambda _: f"{next(meter_numbers):08}", html)
+    html = re.sub(
+        r"(?!<td>)\d{8}(?=</td>)",
+        lambda _: f"{next(meter_numbers):08}",
+        html,
+    )
 
     # date and time
     html = re.sub(r"\d{2}\.\d{2}\.\d{4} \d{2}:\d{2}:\d{2}", "01.01.2021 12:34:56", html)
+    html = re.sub(r"\d{2}\.\d{2}\.\d{4} - \d{2}\.\d{2}\.\d{4}", "01.01.2021 - 02.02.2022", html)
 
     # meter values
-    html = re.sub(r"[\d\.]+,\d{2}", "1.234,56", html)
+    html = re.sub(
+        r"(?!<td>)[\d\.]+,\d{2}(?=<\/td>)",
+        "1.234,56",
+        html,
+    )
 
     return html  # noqa: RET504
 
@@ -87,6 +106,8 @@ async def main() -> None:
         requests["newMeterTable.php"] = get("php/newMeterTable.php", session=logged_in_session)
         requests["newMeterTable.notLoggedIn.php"] = get("php/newMeterTable.php")
 
+        requests["ownConsumption.php"] = get("php/ownConsumption.php", session=logged_in_session)
+
         requests["getTrafficLightStatus.php"] = get("php/getTrafficLightStatus.php")
 
         requests["signinForm.failure.php"] = post_login("incorrect", "incorrect")
@@ -99,8 +120,8 @@ async def main() -> None:
 
     responses = dict(responses)
 
-    for doc in ("newMeterTable.php",):
-        responses[doc] = anonymize_new_meter_table(responses[doc])
+    for doc in ("newMeterTable.php", "ownConsumption.php"):
+        responses[doc] = anonymize(responses[doc])
 
     RESPONSES_DIR.mkdir(parents=True, exist_ok=True)
     for name, response in responses.items():
