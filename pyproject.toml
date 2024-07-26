@@ -57,7 +57,7 @@ lint = "pre-commit run --all-files"
 
 [tool.pytest.ini_options]
 markers = [
-    "mocked_api: mark test as using a mock of the enocoo website",
+    "mock_api: mark test as using a mock of the enocoo website",
 ]
 addopts = "--typeguard-packages=oocone --cov=oocone --cov-report=html"
 

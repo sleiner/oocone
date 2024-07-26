@@ -11,7 +11,6 @@ from . import TIMEZONE
 
 
 @pytest.mark.asyncio()
-@pytest.mark.mocked_api()
 @pytest.mark.filterwarnings("ignore::bs4.MarkupResemblesLocatorWarning")  # false-positive
 async def test_get_traffic_light_status(mock_auth: Auth) -> None:
     """Check that Enocoo.get_traffic_light_status successfully returns for mock API data."""
@@ -22,7 +21,6 @@ async def test_get_traffic_light_status(mock_auth: Auth) -> None:
 
 
 @pytest.mark.asyncio()
-@pytest.mark.mocked_api()
 async def test_get_meter_table(mock_auth: Auth) -> None:
     """Check that Enocoo.get_traffic_light_status successfully returns for mock API data."""
     expected = [

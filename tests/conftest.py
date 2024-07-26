@@ -2,6 +2,7 @@
 
 from asyncio import AbstractEventLoop
 from pathlib import Path
+from typing import Any
 
 import pytest
 from aiohttp import web
@@ -100,3 +101,10 @@ def mock_auth(mock_api: TestClient):  # noqa: ANN201
         username="correct",
         password="correct",  # noqa: S106
     )
+
+
+def pytest_collection_modifyitems(items: list[Any]) -> None:
+    """Apply additional metadata to tests."""
+    for item in items:
+        if "mock_api" in item.fixturenames:
+            item.add_marker(pytest.mark.mock_api)
