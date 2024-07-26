@@ -2,15 +2,25 @@
 
 from __future__ import annotations
 
+import datetime as dt
 import logging
-from datetime import datetime, tzinfo
 from typing import TYPE_CHECKING, Any, Literal
 
 from oocone import errors
+from oocone._internal import scrape_consumption
 from oocone._internal.html_table import parse_table
-from oocone.types import UNKNOWN, MeterStatus, TrafficLightColor, TrafficLightStatus
+from oocone.types import (
+    UNKNOWN,
+    Consumption,
+    ConsumptionType,
+    MeterStatus,
+    TrafficLightColor,
+    TrafficLightStatus,
+)
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from oocone.auth import Auth
 
 ROUTE_LOGIN = "/signinForm.php?mode=ok"
@@ -22,7 +32,7 @@ logger = logging.getLogger(__name__)
 class Enocoo:
     """Provides access to the data accessible via the enocoo Web interface."""
 
-    def __init__(self, auth: Auth, timezone: tzinfo) -> None:
+    def __init__(self, auth: Auth, timezone: dt.tzinfo) -> None:
         """
         Initialize the API and store the auth so we can make requests.
 
@@ -104,14 +114,14 @@ class Enocoo:
         response, soup = await self.auth.request(
             "POST",
             "php/newMeterTable.php",
-            data={"dateParam": datetime.now(tz=self.timezone).date().isoformat()},
+            data={"dateParam": dt.datetime.now(tz=self.timezone).date().isoformat()},
         )
         html_table = soup.find("table")
         meter_table = parse_table(html_table)
 
-        def parse_timestamp(timestamp: str) -> datetime:
+        def parse_timestamp(timestamp: str) -> dt.datetime:
             dateformat = r"%d.%m.%Y %H:%M:%S"
-            return datetime.strptime(timestamp, dateformat).replace(tzinfo=self.timezone)
+            return dt.datetime.strptime(timestamp, dateformat).replace(tzinfo=self.timezone)
 
         def parse_reading(reading: str) -> float:
             # The reading uses german number formatting with a comma as the decimal separator and a
@@ -124,7 +134,7 @@ class Enocoo:
             return float(reading)
 
         def parse_unit(text: str) -> str:
-            if text == "m3":  # noqa: SIM108
+            if text == "m3":
                 result = "m³"
             else:
                 result = text
@@ -148,3 +158,21 @@ class Enocoo:
             result.append(meter_status)
 
         return result
+
+    async def get_individual_consumption(
+        self,
+        consumption_type: ConsumptionType,
+        during: dt.date,
+        interval: Literal["day"],
+    ) -> Mapping[str, list[Consumption]]:
+        """Return individual consumption statistics for a given meter type."""
+        if interval == "day":
+            return await scrape_consumption.get_daily_consumption(
+                consumption_type=consumption_type,
+                date=during,
+                timezone=self.timezone,
+                auth=self.auth,
+            )
+
+        msg = f'Illegal interval "{interval}"'
+        raise errors.OoconeMisuse(msg)

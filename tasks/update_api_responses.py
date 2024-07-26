@@ -5,15 +5,17 @@ Before executing it, be sure to set these env variables:
     - ENOCOO_BASE_URL
     - ENOCOO_USERNAME
     - ENOCOO_PASSWORD
+    - ENOCOO_AREA_ID
 """
 
 import asyncio
 import os
 import re
 from collections import OrderedDict
+from collections.abc import Callable, Mapping
 from itertools import count
 from pathlib import Path
-from typing import TypeVar
+from typing import Any, TypeVar
 
 import aiohttp
 
@@ -25,29 +27,38 @@ limit_concurrent_requests = asyncio.Semaphore(3)
 T = TypeVar("T")
 
 
+async def get(
+    path: str,
+    *,
+    params: Mapping[str, str] | None = None,
+    session: aiohttp.ClientSession | None = None,
+) -> str:
+    return await request(lambda s: s.get(f"{BASE_URL}/{path}", params=params), session)
+
+
+async def post(path: str, data: Any = None, *, session: aiohttp.ClientSession | None = None) -> str:
+    return await request(
+        lambda s: s.post(f"{BASE_URL}/{path}", data=data),
+        session,
+    )
+
+
 async def post_login(
     username: str, password: str, *, session: aiohttp.ClientSession | None = None
 ) -> str:
+    return await post(
+        path="signinForm.php?mode=ok",
+        data={"user": username, "passwort": password},
+        session=session,
+    )
+
+
+async def request(make_request: Callable, session: aiohttp.ClientSession | None = None) -> str:
     if not session:
         async with aiohttp.ClientSession() as temp_session:
-            return await post_login(username, password, session=temp_session)
+            return await request(make_request, session=temp_session)
 
-    async with (
-        limit_concurrent_requests,
-        session.post(
-            f"{BASE_URL}/signinForm.php?mode=ok",
-            data={"user": username, "passwort": password},
-        ) as response,
-    ):
-        return await response.text()
-
-
-async def get(path: str, *, session: aiohttp.ClientSession | None = None) -> str:
-    if not session:
-        async with aiohttp.ClientSession() as temp_session:
-            return await get(path, session=temp_session)
-
-    async with limit_concurrent_requests, session.get(f"{BASE_URL}/{path}") as response:
+    async with limit_concurrent_requests, make_request(session) as response:
         return await response.text()
 
 
@@ -96,21 +107,36 @@ def anonymize(original_html: str) -> str:
 async def main() -> None:
     username = os.environ["ENOCOO_USERNAME"]
     password = os.environ["ENOCOO_PASSWORD"]
+    area_id = os.environ["ENOCOO_AREA_ID"]
 
     requests = OrderedDict()
 
     async with aiohttp.ClientSession() as logged_in_session:
+        requests["signinForm.failure.php"] = post_login("incorrect", "incorrect")
         requests["signinForm.success.php"] = async_id(
             await post_login(username, password, session=logged_in_session)
         )
+
+        for meter_class in ("Stromverbrauch", "Warmwasser", "Kaltwasser", "Waerme"):
+            for interval in ("Tag", "Letzte7Tage", "Woche", "Monat", "Jahr"):
+                for date in ("2023-10-29", "2024-01-01", "2024-03-31"):
+                    requests[f"getMeterDataWithParam.{meter_class}.{date}.{interval}.php"] = get(
+                        "php/getMeterDataWithParam.php",
+                        params={
+                            "AreaId": area_id,
+                            "from": date,
+                            "intVal": interval,
+                            "mClass": meter_class,
+                        },
+                        session=logged_in_session,
+                    )
+
+        requests["getTrafficLightStatus.php"] = get("php/getTrafficLightStatus.php")
+
         requests["newMeterTable.php"] = get("php/newMeterTable.php", session=logged_in_session)
         requests["newMeterTable.notLoggedIn.php"] = get("php/newMeterTable.php")
 
         requests["ownConsumption.php"] = get("php/ownConsumption.php", session=logged_in_session)
-
-        requests["getTrafficLightStatus.php"] = get("php/getTrafficLightStatus.php")
-
-        requests["signinForm.failure.php"] = post_login("incorrect", "incorrect")
 
         responses = zip(
             requests.keys(),

@@ -1,8 +1,8 @@
 """Types for library users."""
 
+import datetime as dt
 import enum
 from dataclasses import dataclass
-from datetime import datetime
 from typing import Literal
 
 
@@ -32,6 +32,26 @@ class MeterStatus:
     name: str
     area: str
     meter_id: str
-    timestamp: datetime
+    timestamp: dt.datetime
     reading: float
+    unit: str
+
+
+class ConsumptionType(enum.StrEnum):
+    """Type of thing to consume (i.e. something that would be measured by a utility meter)."""
+
+    ELECTRICITY = enum.auto()
+    WATER_HOT = enum.auto()
+    WATER_COLD = enum.auto()
+    HEAT = enum.auto()
+
+
+@dataclass
+class Consumption:
+    """Indicates the amount of consumption at a specific time."""
+
+    start: dt.datetime
+    period: dt.timedelta
+
+    value: float
     unit: str

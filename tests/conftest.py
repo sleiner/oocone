@@ -40,19 +40,34 @@ def _response_from_file(response_path: Path, *, needs_login: bool = True) -> Han
     original_response_path = response_path
 
     async def handler(request: web.Request) -> web.Response:
-        response = web.Response()
-
         if needs_login and request.cookies.get("logged_in") != "true":
             response_path = RESPONSES_DIR / "newMeterTable.notLoggedIn.php"
         else:
             response_path = RESPONSES_DIR / original_response_path
 
+        response = web.Response()
         with Path.open(response_path, "rb") as f:
             response.body = f.read()
 
         return response
 
     return handler
+
+
+async def _get_meter_data_with_param(request: web.Request) -> web.Response:
+    if request.cookies.get("logged_in") != "true":
+        response_path = RESPONSES_DIR / "newMeterTable.notLoggedIn.php"
+    else:
+        q = request.query
+        response_path = (
+            RESPONSES_DIR / f"getMeterDataWithParam.{q['mClass']}.{q['from']}.{q['intVal']}.php"
+        )
+
+    response = web.Response()
+    with Path.open(response_path, "rb") as f:
+        response.body = f.read()
+
+    return response
 
 
 @pytest.fixture()
@@ -66,6 +81,7 @@ def mock_api(event_loop: AbstractEventLoop, aiohttp_client: AiohttpClient) -> Te
         "/php/getTrafficLightStatus.php",
         _response_from_file("getTrafficLightStatus.php", needs_login=False),
     )
+    app.router.add_get("/php/getMeterDataWithParam.php", _get_meter_data_with_param)
     app.router.add_post("/php/newMeterTable.php", _response_from_file("newMeterTable.php"))
     app.router.add_get("/php/ownConsumption.php", _response_from_file("ownConsumption.php"))
     return event_loop.run_until_complete(aiohttp_client(app))
