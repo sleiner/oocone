@@ -2,7 +2,6 @@ import datetime as dt
 import json
 import logging
 import re
-from collections.abc import Mapping
 from functools import lru_cache
 
 from oocone.auth import Auth
@@ -29,7 +28,7 @@ NUM_MONTHS = 12
 
 
 @lru_cache
-async def _get_area_ids(auth: Auth) -> list[str]:
+async def get_area_ids(auth: Auth) -> list[str]:
     response, _ = await auth.request("GET", "php/ownConsumption.php")
     html = await response.text()
 
@@ -43,51 +42,45 @@ async def _get_area_ids(auth: Auth) -> list[str]:
 
 
 async def get_daily_consumption(
-    consumption_type: ConsumptionType, date: dt.date, timezone: dt.tzinfo, auth: Auth
-) -> Mapping[str, list[Consumption]]:
-    results = {}
-    for area_id in await _get_area_ids(auth):
-        response, _ = await auth.request(
-            "GET",
-            "php/getMeterDataWithParam.php",
-            params={
-                "AreaId": area_id,
-                "from": date.isoformat(),
-                "intVal": "Tag",
-                "mClass": _CONSUMPTION_CLASSES[consumption_type],
-            },
-        )
-        results[area_id] = parse_daily_consumption(
-            daily_consumption_json=await response.text(),
-            unit=_CONSUMPTION_UNITS[consumption_type],
-            date=date,
-            timezone=timezone,
-            values_are_integrated=(consumption_type == ConsumptionType.HEAT),
-        )
-    return results
+    consumption_type: ConsumptionType, area_id: str, date: dt.date, timezone: dt.tzinfo, auth: Auth
+) -> list[Consumption]:
+    response, _ = await auth.request(
+        "GET",
+        "php/getMeterDataWithParam.php",
+        params={
+            "AreaId": area_id,
+            "from": date.isoformat(),
+            "intVal": "Tag",
+            "mClass": _CONSUMPTION_CLASSES[consumption_type],
+        },
+    )
+    return parse_daily_consumption(
+        daily_consumption_json=await response.text(),
+        unit=_CONSUMPTION_UNITS[consumption_type],
+        date=date,
+        timezone=timezone,
+        values_are_integrated=(consumption_type == ConsumptionType.HEAT),
+    )
 
 
 async def get_yearly_consumption(
-    consumption_type: ConsumptionType, year_number: int, auth: Auth
-) -> Mapping[str, list[Consumption]]:
-    results = {}
-    for area_id in await _get_area_ids(auth):
-        response, _ = await auth.request(
-            "GET",
-            "php/getMeterDataWithParam.php",
-            params={
-                "AreaId": area_id,
-                "from": f"{year_number}-01-01",
-                "intVal": "Jahr",
-                "mClass": _CONSUMPTION_CLASSES[consumption_type],
-            },
-        )
-        results[area_id] = parse_yearly_consumption(
-            yearly_consumption_json=await response.text(),
-            unit=_CONSUMPTION_UNITS[consumption_type],
-            year_number=year_number,
-        )
-    return results
+    consumption_type: ConsumptionType, area_id: str, year_number: int, auth: Auth
+) -> list[Consumption]:
+    response, _ = await auth.request(
+        "GET",
+        "php/getMeterDataWithParam.php",
+        params={
+            "AreaId": area_id,
+            "from": f"{year_number}-01-01",
+            "intVal": "Jahr",
+            "mClass": _CONSUMPTION_CLASSES[consumption_type],
+        },
+    )
+    return parse_yearly_consumption(
+        yearly_consumption_json=await response.text(),
+        unit=_CONSUMPTION_UNITS[consumption_type],
+        year_number=year_number,
+    )
 
 
 def parse_daily_consumption(

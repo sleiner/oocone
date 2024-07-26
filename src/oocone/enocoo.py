@@ -19,8 +19,6 @@ from oocone.types import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
-
     from oocone.auth import Auth
 
 ROUTE_LOGIN = "/signinForm.php?mode=ok"
@@ -159,16 +157,22 @@ class Enocoo:
 
         return result
 
+    async def get_area_ids(self) -> list[str]:
+        """Get all area IDs available via the dashboard."""
+        return await scrape_consumption.get_area_ids(auth=self.auth)
+
     async def get_individual_consumption(
         self,
         consumption_type: ConsumptionType,
         during: dt.date,
         interval: Literal["day", "year"],
-    ) -> Mapping[str, list[Consumption]]:
+        area_id: str,
+    ) -> list[Consumption]:
         """Return individual consumption statistics for a given meter type."""
         if interval == "day":
             return await scrape_consumption.get_daily_consumption(
                 consumption_type=consumption_type,
+                area_id=area_id,
                 date=during,
                 timezone=self.timezone,
                 auth=self.auth,
@@ -176,6 +180,7 @@ class Enocoo:
         if interval == "year":
             return await scrape_consumption.get_yearly_consumption(
                 consumption_type=consumption_type,
+                area_id=area_id,
                 year_number=during.year,
                 auth=self.auth,
             )
