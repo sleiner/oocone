@@ -112,3 +112,35 @@ async def test_get_individual_consumption_day(
     for hour in {cons.start.hour for cons in consumption}:
         num_readings = len([cons for cons in consumption if cons.start.hour == hour])
         assert num_readings == 4, "consumption should contain 4 readings per hour"  # noqa: PLR2004
+
+
+@pytest.mark.asyncio()
+@pytest.mark.parametrize(
+    "consumption_type",
+    [
+        ConsumptionType.ELECTRICITY,
+        ConsumptionType.WATER_COLD,
+        ConsumptionType.WATER_HOT,
+        ConsumptionType.HEAT,
+    ],
+)
+async def test_get_individual_consumption_year(
+    consumption_type: ConsumptionType, mock_auth: Auth
+) -> None:
+    """Check that enocoo.get_individual_consumption returns yearly data in expected format."""
+    enocoo = Enocoo(mock_auth, TIMEZONE)
+    consumptions = await enocoo.get_individual_consumption(
+        consumption_type=consumption_type, during=dt.date(2024, 1, 1), interval="year"
+    )
+
+    assert set(consumptions.keys()) == {"123"}
+    consumption = consumptions["123"]
+
+    for reading in consumption:
+        match reading.start.month:
+            case 1 | 3 | 5 | 7 | 8 | 10 | 12:
+                assert reading.period == dt.timedelta(days=31)
+            case 2:
+                assert reading.period == dt.timedelta(days=29)
+            case 4 | 6 | 9 | 11:
+                assert reading.period == dt.timedelta(days=30)

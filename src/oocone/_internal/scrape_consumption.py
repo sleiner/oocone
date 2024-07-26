@@ -25,6 +25,8 @@ _CONSUMPTION_UNITS = {
     ConsumptionType.WATER_HOT: "m³",
 }
 
+NUM_MONTHS = 12
+
 
 @lru_cache
 async def _get_area_ids(auth: Auth) -> list[str]:
@@ -61,6 +63,29 @@ async def get_daily_consumption(
             date=date,
             timezone=timezone,
             values_are_integrated=(consumption_type == ConsumptionType.HEAT),
+        )
+    return results
+
+
+async def get_yearly_consumption(
+    consumption_type: ConsumptionType, year_number: int, auth: Auth
+) -> Mapping[str, list[Consumption]]:
+    results = {}
+    for area_id in await _get_area_ids(auth):
+        response, _ = await auth.request(
+            "GET",
+            "php/getMeterDataWithParam.php",
+            params={
+                "AreaId": area_id,
+                "from": f"{year_number}-01-01",
+                "intVal": "Jahr",
+                "mClass": _CONSUMPTION_CLASSES[consumption_type],
+            },
+        )
+        results[area_id] = parse_yearly_consumption(
+            yearly_consumption_json=await response.text(),
+            unit=_CONSUMPTION_UNITS[consumption_type],
+            year_number=year_number,
         )
     return results
 
@@ -112,5 +137,52 @@ def parse_daily_consumption(
         last_time = time
         last_hour = hour
         last_value = value
+
+    return results
+
+
+def parse_yearly_consumption(
+    *,
+    yearly_consumption_json: str,
+    unit: str,
+    year_number: int,
+) -> list[Consumption]:
+    results = []
+
+    month_names_to_number = {
+        "Jan.": 1,
+        "Feb.": 2,
+        "Mär.": 3,
+        "Apr.": 4,
+        "Mai": 5,
+        "Jun.": 6,
+        "Jul.": 7,
+        "Aug.": 8,
+        "Sep.": 9,
+        "Okt.": 10,
+        "Nov.": 11,
+        "Dez.": 12,
+    }
+
+    json_data = json.loads(yearly_consumption_json)
+    month_names = json_data[1]
+    values = json_data[0]
+
+    for month_name, value in zip(month_names, values, strict=False):
+        month = month_names_to_number[month_name]
+
+        begin_of_month = dt.date(year_number, month, 1)
+        begin_of_next_month = dt.date(
+            year_number if month < NUM_MONTHS else year_number + 1,
+            month + 1 if month < NUM_MONTHS else 1,
+            1,
+        )
+        consumption = Consumption(
+            start=begin_of_month,
+            period=begin_of_next_month - begin_of_month,
+            value=value,
+            unit=unit,
+        )
+        results.append(consumption)
 
     return results

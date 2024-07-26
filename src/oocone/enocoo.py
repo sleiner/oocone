@@ -163,7 +163,7 @@ class Enocoo:
         self,
         consumption_type: ConsumptionType,
         during: dt.date,
-        interval: Literal["day"],
+        interval: Literal["day", "year"],
     ) -> Mapping[str, list[Consumption]]:
         """Return individual consumption statistics for a given meter type."""
         if interval == "day":
@@ -171,6 +171,12 @@ class Enocoo:
                 consumption_type=consumption_type,
                 date=during,
                 timezone=self.timezone,
+                auth=self.auth,
+            )
+        if interval == "year":
+            return await scrape_consumption.get_yearly_consumption(
+                consumption_type=consumption_type,
+                year_number=during.year,
                 auth=self.auth,
             )
 
