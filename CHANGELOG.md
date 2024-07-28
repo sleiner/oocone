@@ -1,7 +1,14 @@
 # Changelog
 
 <!-- insertion marker -->
-[v0.2.1](https://github.com/sleiner/oocone/releases/tag/0.2.1) (2024-06-30)
+[v0.3.0](https://github.com/sleiner/oocone/releases/tag/0.3.0) (2024-07-28)
+---------------------------------------------------------------------------
+
+### Features & Improvements
+
+
+- Added access to historic consumption data via ` Enocoo.get_individual_consumption()` [#15](https://github.com/sleiner/oocone/issues/15)
+  [v0.2.1](https://github.com/sleiner/oocone/releases/tag/0.2.1) (2024-06-30)
 ---------------------------------------------------------------------------
 
 ### Bug Fixes
