@@ -58,6 +58,7 @@ class Auth:
     ) -> (aiohttp.ClientResponse, BeautifulSoup):
         """Make a request."""
         try:
+            logger.debug("=>       %s %s/%s", method.upper(), self._base_url, path)
             response = await self._session.request(
                 method,
                 f"{self._base_url}/{path}",
@@ -66,6 +67,7 @@ class Auth:
         except aiohttp.client_exceptions.ClientError as e:
             raise errors.ConnectionIssue from e
 
+        logger.debug("<= (%s) %s %s/%s", response.status, method.upper(), self._base_url, path)
         soup = BeautifulSoup(await response.text(), BEAUTIFULSOUP_PARSER)
 
         if self._response_indicates_not_logged_in(soup):
