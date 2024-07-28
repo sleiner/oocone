@@ -2,6 +2,7 @@
 
 from asyncio import AbstractEventLoop
 from pathlib import Path
+from typing import Any
 
 import pytest
 from aiohttp import web
@@ -40,19 +41,34 @@ def _response_from_file(response_path: Path, *, needs_login: bool = True) -> Han
     original_response_path = response_path
 
     async def handler(request: web.Request) -> web.Response:
-        response = web.Response()
-
         if needs_login and request.cookies.get("logged_in") != "true":
             response_path = RESPONSES_DIR / "newMeterTable.notLoggedIn.php"
         else:
             response_path = RESPONSES_DIR / original_response_path
 
+        response = web.Response()
         with Path.open(response_path, "rb") as f:
             response.body = f.read()
 
         return response
 
     return handler
+
+
+async def _get_meter_data_with_param(request: web.Request) -> web.Response:
+    if request.cookies.get("logged_in") != "true":
+        response_path = RESPONSES_DIR / "newMeterTable.notLoggedIn.php"
+    else:
+        q = request.query
+        response_path = (
+            RESPONSES_DIR / f"getMeterDataWithParam.{q['mClass']}.{q['from']}.{q['intVal']}.php"
+        )
+
+    response = web.Response()
+    with Path.open(response_path, "rb") as f:
+        response.body = f.read()
+
+    return response
 
 
 @pytest.fixture()
@@ -66,10 +82,9 @@ def mock_api(event_loop: AbstractEventLoop, aiohttp_client: AiohttpClient) -> Te
         "/php/getTrafficLightStatus.php",
         _response_from_file("getTrafficLightStatus.php", needs_login=False),
     )
-    app.router.add_post(
-        "/php/newMeterTable.php",
-        _response_from_file("newMeterTable.php", needs_login=True),
-    )
+    app.router.add_get("/php/getMeterDataWithParam.php", _get_meter_data_with_param)
+    app.router.add_post("/php/newMeterTable.php", _response_from_file("newMeterTable.php"))
+    app.router.add_get("/php/ownConsumption.php", _response_from_file("ownConsumption.php"))
     return event_loop.run_until_complete(aiohttp_client(app))
 
 
@@ -86,3 +101,10 @@ def mock_auth(mock_api: TestClient):  # noqa: ANN201
         username="correct",
         password="correct",  # noqa: S106
     )
+
+
+def pytest_collection_modifyitems(items: list[Any]) -> None:
+    """Apply additional metadata to tests."""
+    for item in items:
+        if "mock_api" in item.fixturenames:
+            item.add_marker(pytest.mark.mock_api)

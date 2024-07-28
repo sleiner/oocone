@@ -2,16 +2,24 @@
 
 from __future__ import annotations
 
+import datetime as dt
 import logging
-from datetime import datetime, tzinfo
-from typing import Any, Literal
-
-import aiohttp
-from bs4 import BeautifulSoup
+from typing import TYPE_CHECKING, Any, Literal
 
 from oocone import errors
+from oocone._internal import scrape_consumption
 from oocone._internal.html_table import parse_table
-from oocone.types import UNKNOWN, MeterStatus, TrafficLightColor, TrafficLightStatus
+from oocone.types import (
+    UNKNOWN,
+    Consumption,
+    ConsumptionType,
+    MeterStatus,
+    TrafficLightColor,
+    TrafficLightStatus,
+)
+
+if TYPE_CHECKING:
+    from oocone.auth import Auth
 
 ROUTE_LOGIN = "/signinForm.php?mode=ok"
 BEAUTIFULSOUP_PARSER = "html.parser"
@@ -19,73 +27,10 @@ BEAUTIFULSOUP_PARSER = "html.parser"
 logger = logging.getLogger(__name__)
 
 
-class Auth:
-    """Acquires authentication for the dashboard and makes authenticated requests."""
-
-    def __init__(
-        self,
-        *,
-        websession: aiohttp.ClientSession | None = None,
-        base_url: str,
-        username: str,
-        password: str,
-    ) -> None:
-        """Initialize."""
-        self._base_url = base_url.rstrip("/")
-        self.__username = username
-        self.__password = password
-        self._session = websession or aiohttp.ClientSession()
-        self._logged_in = False
-
-    @staticmethod
-    def _response_indicates_not_logged_in(response: BeautifulSoup) -> bool:
-        if response.title is not None and "abgemeldet" in response.title.text.lower():
-            return True
-        if response.find("input", {"type": "password"}) is not None:  # noqa: SIM103
-            return True
-
-        return False
-
-    async def _login(self) -> None:
-        async with self._session.post(
-            self._base_url + ROUTE_LOGIN,
-            data={"user": self.__username, "passwort": self.__password},
-        ) as response:
-            response_text = await response.text()
-
-            soup = BeautifulSoup(response_text, features=BEAUTIFULSOUP_PARSER)
-            if self._response_indicates_not_logged_in(soup):
-                raise errors.AuthenticationFailed
-
-    async def request(
-        self, method: str, path: str, *, retry_with_login: bool = True, **kwargs: dict
-    ) -> (aiohttp.ClientResponse, BeautifulSoup):
-        """Make a request."""
-        try:
-            response = await self._session.request(
-                method,
-                f"{self._base_url}/{path}",
-                **kwargs,
-            )
-        except aiohttp.client_exceptions.ClientError as e:
-            raise errors.ConnectionIssue from e
-
-        soup = BeautifulSoup(await response.text(), BEAUTIFULSOUP_PARSER)
-
-        if self._response_indicates_not_logged_in(soup):
-            if retry_with_login:
-                await self._login()
-                return await self.request(method, path, retry_with_login=False, **kwargs)
-
-            raise errors.AuthenticationFailed
-
-        return (response, soup)
-
-
 class Enocoo:
     """Provides access to the data accessible via the enocoo Web interface."""
 
-    def __init__(self, auth: Auth, timezone: tzinfo) -> None:
+    def __init__(self, auth: Auth, timezone: dt.tzinfo) -> None:
         """
         Initialize the API and store the auth so we can make requests.
 
@@ -167,14 +112,14 @@ class Enocoo:
         response, soup = await self.auth.request(
             "POST",
             "php/newMeterTable.php",
-            data={"dateParam": datetime.now(tz=self.timezone).date().isoformat()},
+            data={"dateParam": dt.datetime.now(tz=self.timezone).date().isoformat()},
         )
         html_table = soup.find("table")
         meter_table = parse_table(html_table)
 
-        def parse_timestamp(timestamp: str) -> datetime:
+        def parse_timestamp(timestamp: str) -> dt.datetime:
             dateformat = r"%d.%m.%Y %H:%M:%S"
-            return datetime.strptime(timestamp, dateformat).replace(tzinfo=self.timezone)
+            return dt.datetime.strptime(timestamp, dateformat).replace(tzinfo=self.timezone)
 
         def parse_reading(reading: str) -> float:
             # The reading uses german number formatting with a comma as the decimal separator and a
@@ -187,7 +132,7 @@ class Enocoo:
             return float(reading)
 
         def parse_unit(text: str) -> str:
-            if text == "m3":  # noqa: SIM108
+            if text == "m3":
                 result = "m³"
             else:
                 result = text
@@ -211,3 +156,34 @@ class Enocoo:
             result.append(meter_status)
 
         return result
+
+    async def get_area_ids(self) -> list[str]:
+        """Get all area IDs available via the dashboard."""
+        return await scrape_consumption.get_area_ids(auth=self.auth)
+
+    async def get_individual_consumption(
+        self,
+        consumption_type: ConsumptionType,
+        during: dt.date,
+        interval: Literal["day", "year"],
+        area_id: str,
+    ) -> list[Consumption]:
+        """Return individual consumption statistics for a given meter type."""
+        if interval == "day":
+            return await scrape_consumption.get_daily_consumption(
+                consumption_type=consumption_type,
+                area_id=area_id,
+                date=during,
+                timezone=self.timezone,
+                auth=self.auth,
+            )
+        if interval == "year":
+            return await scrape_consumption.get_yearly_consumption(
+                consumption_type=consumption_type,
+                area_id=area_id,
+                year_number=during.year,
+                auth=self.auth,
+            )
+
+        msg = f'Illegal interval "{interval}"'
+        raise errors.OoconeMisuse(msg)

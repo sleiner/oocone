@@ -57,7 +57,7 @@ lint = "pre-commit run --all-files"
 
 [tool.pytest.ini_options]
 markers = [
-    "mocked_api: mark test as using a mock of the enocoo website",
+    "mock_api: mark test as using a mock of the enocoo website",
 ]
 addopts = "--typeguard-packages=oocone --cov=oocone --cov-report=html"
 
@@ -79,6 +79,7 @@ ignore = [
     "D212",   # multi-line-summary-first-line (incompatible with formatter)
     "ISC001", # incompatible with formatter
     "N818",   # fully custom names for exceptions are fine
+    "SIM108", # usage of the ternary operator may hurt readability
 ]
 
 [tool.ruff.lint.per-file-ignores]

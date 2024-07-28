@@ -6,6 +6,7 @@ Unofficial library for interacting with an enocoo energy management system
 :license: ISC
 """
 
-from .enocoo import Auth, Enocoo
+from .auth import Auth
+from .enocoo import Enocoo
 
 __all__ = ["Auth", "Enocoo"]

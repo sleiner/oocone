@@ -15,3 +15,7 @@ class AuthenticationFailed(OoconeError):
 
 class UnexpectedResponse(OoconeError):
     """Got unexpected data back from the enocoo website."""
+
+
+class OoconeMisuse(OoconeError):
+    """The oocone API was misused."""
