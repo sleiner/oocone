@@ -118,7 +118,7 @@ async def main() -> None:
         )
 
         for meter_class in ("Stromverbrauch", "Warmwasser", "Kaltwasser", "Waerme"):
-            for interval in ("Tag", "Letzte7Tage", "Woche", "Monat", "Jahr"):
+            for interval in ("Tag", "Woche", "Monat", "Jahr"):
                 for date in ("2023-10-29", "2024-01-01", "2024-03-31"):
                     requests[f"getMeterDataWithParam.{meter_class}.{date}.{interval}.php"] = get(
                         "php/getMeterDataWithParam.php",
