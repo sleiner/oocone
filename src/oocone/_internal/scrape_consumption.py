@@ -2,7 +2,6 @@ import datetime as dt
 import json
 import logging
 import re
-from functools import lru_cache
 
 from oocone.auth import Auth
 from oocone.errors import UnexpectedResponse
@@ -27,7 +26,6 @@ _CONSUMPTION_UNITS = {
 NUM_MONTHS = 12
 
 
-@lru_cache
 async def get_area_ids(auth: Auth) -> list[str]:
     response, _ = await auth.request("GET", "php/ownConsumption.php")
     html = await response.text()
