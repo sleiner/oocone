@@ -124,12 +124,11 @@ ignore_missing_imports = true
 [tool.towncrier]
 package = "oocone"
 filename = "CHANGELOG.md"
-issue_format = "[#{issue}](https://github.com/sleiner/oocone/issues/{issue})"
-directory = "news/"
 start_string = "<!-- insertion marker -->"
-title_format = "[v{version}](https://github.com/sleiner/oocone/releases/tag/{version}) ({project_date})"
-template = "news/towncrier_template.md"
-underlines = "-~^"
+title_format = "## [v{version}](https://github.com/sleiner/oocone/releases/tag/{version}) ({project_date})"
+issue_format = "[#{issue}](https://github.com/sleiner/oocone/issues/{issue})"
+underlines = ["", "", ""]
+directory = "news/"
 
 [[tool.towncrier.type]]
 directory = "feature"
