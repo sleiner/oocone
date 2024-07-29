@@ -1,6 +1,14 @@
 # Changelog
 
 <!-- insertion marker -->
+## [v0.3.1](https://github.com/sleiner/oocone/releases/tag/0.3.1) (2024-07-29)
+
+
+### Bug Fixes
+
+- Removed broken LRU cache for `Enocoo.get_area_ids()` ([#16](https://github.com/sleiner/oocone/issues/16))
+
+
 ## [v0.3.0](https://github.com/sleiner/oocone/releases/tag/0.3.0) (2024-07-28)
 
 ### Features & Improvements
