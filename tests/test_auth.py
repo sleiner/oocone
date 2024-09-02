@@ -6,7 +6,7 @@ from aiohttp.test_utils import TestClient
 from oocone import Auth, errors
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_login_successful(mock_api: TestClient) -> None:
     """Check that Auth._login() does not throw an exception with correct credentials."""
     auth = Auth(
@@ -18,7 +18,7 @@ async def test_login_successful(mock_api: TestClient) -> None:
     await auth._login()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_login_raise_on_failure(mock_api: TestClient) -> None:
     """Check that Auth._login() raises an exception for incorrect credentials."""
     auth = Auth(

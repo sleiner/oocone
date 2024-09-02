@@ -71,7 +71,7 @@ async def _get_meter_data_with_param(request: web.Request) -> web.Response:
     return response
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_api(event_loop: AbstractEventLoop, aiohttp_client: AiohttpClient) -> TestClient:
     """Return a mock API instance."""
     app = web.Application()
@@ -88,7 +88,7 @@ def mock_api(event_loop: AbstractEventLoop, aiohttp_client: AiohttpClient) -> Te
     return event_loop.run_until_complete(aiohttp_client(app))
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_auth(mock_api: TestClient):  # noqa: ANN201
     """Return an Auth instance accessing a mock API."""
     # Importing oocone directly inside conftest.py breaks the typeguard plugin for pytest,
