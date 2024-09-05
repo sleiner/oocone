@@ -59,7 +59,13 @@ lint = "pre-commit run --all-files"
 markers = [
     "mock_api: mark test as using a mock of the enocoo website",
 ]
-addopts = "--typeguard-packages=oocone --cov=oocone --cov-report=html"
+addopts = """\
+    --typeguard-packages=oocone \
+    --cov=oocone \
+    --cov-branch \
+    --cov-report=html \
+    --cov-report=term \
+"""
 
 # the productive code already disables a number of warnings, but pytest resets the filters -.-
 # So we instruct pytest explicitly to disable the warnings.
