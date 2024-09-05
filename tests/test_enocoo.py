@@ -11,7 +11,6 @@ from . import TIMEZONE
 
 
 @pytest.mark.asyncio
-@pytest.mark.filterwarnings("ignore::bs4.MarkupResemblesLocatorWarning")  # false-positive
 async def test_get_traffic_light_status(mock_auth: Auth) -> None:
     """Check that Enocoo.get_traffic_light_status successfully returns for mock API data."""
     enocoo = Enocoo(mock_auth, TIMEZONE)

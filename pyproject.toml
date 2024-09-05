@@ -61,6 +61,12 @@ markers = [
 ]
 addopts = "--typeguard-packages=oocone --cov=oocone --cov-report=html"
 
+# the productive code already disables a number of warnings, but pytest resets the filters -.-
+# So we instruct pytest explicitly to disable the warnings.
+filterwarnings = [
+    "ignore::bs4.MarkupResemblesLocatorWarning:oocone.auth",
+]
+
 [tool.ruff]
 line-length = 100
 src = ["src"]
