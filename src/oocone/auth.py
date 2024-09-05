@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import logging
+import warnings
 
 import aiohttp
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, MarkupResemblesLocatorWarning
 
 from oocone import errors
 
@@ -78,3 +79,13 @@ class Auth:
             raise errors.AuthenticationFailed
 
         return (response, soup)
+
+
+# Some of the responses returned by enocoo trigger a BeautifulSoup warning. So we disable the
+# warning, at least for the current module.
+warnings.filterwarnings(
+    action="ignore",
+    category=MarkupResemblesLocatorWarning,
+    module=__name__,
+    append=True,
+)
