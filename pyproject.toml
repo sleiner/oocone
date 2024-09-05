@@ -62,6 +62,7 @@ markers = [
 addopts = """\
     --typeguard-packages=oocone \
     --cov=oocone \
+    --cov-branch \
     --cov-report=html \
     --cov-report=term \
 """
