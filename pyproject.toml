@@ -6,7 +6,7 @@ license = { text = "ISC" }
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "aiohttp>=3.9.5",
+    "aiohttp>=3.10.5",
     "beautifulsoup4>=4.12.3",
 ]
 dynamic = ["version"]
@@ -32,20 +32,20 @@ package-dir = "src"
 
 [tool.pdm.dev-dependencies]
 test = [
-    "pytest>=8.2.2",
+    "pytest>=8.3.2",
     "pytest-aiohttp>=1.0.5",
-    "pytest-asyncio>=0.23.7",
+    "pytest-asyncio>=0.24.0",
     "pytest-cov>=5.0.0",
     "typeguard>=4.3.0",
     "tzdata>=2024.1",
 ]
 dev = [
-    "towncrier>=23.11.0",
+    "towncrier>=24.8.0",
     "parver>=0.5",
 ]
 doc = [
-    "mkdocs>=1.6.0",
-    "mkdocs-material>=9.5.27",
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.5.34",
 ]
 
 [tool.pdm.scripts]
