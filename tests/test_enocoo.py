@@ -10,7 +10,7 @@ from oocone.types import ConsumptionType, MeterStatus, TrafficLightColor
 from . import TIMEZONE
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.filterwarnings("ignore::bs4.MarkupResemblesLocatorWarning")  # false-positive
 async def test_get_traffic_light_status(mock_auth: Auth) -> None:
     """Check that Enocoo.get_traffic_light_status successfully returns for mock API data."""
@@ -20,7 +20,7 @@ async def test_get_traffic_light_status(mock_auth: Auth) -> None:
     assert isinstance(result.current_energy_price, float)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_get_meter_table(mock_auth: Auth) -> None:
     """Check that Enocoo.get_traffic_light_status successfully returns for mock API data."""
     expected = [
@@ -79,7 +79,7 @@ async def test_get_meter_table(mock_auth: Auth) -> None:
     assert result == expected
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.parametrize(
     "date",
     [
@@ -111,7 +111,7 @@ async def test_get_individual_consumption_day(
         assert num_readings == 4, "consumption should contain 4 readings per hour"  # noqa: PLR2004
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 @pytest.mark.parametrize(
     "consumption_type",
     [
@@ -143,7 +143,7 @@ async def test_get_individual_consumption_year(
                 assert reading.period == dt.timedelta(days=30)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_get_area_ids(mock_auth: Auth) -> None:
     """Check that enocoo.get_area_ids returns the area ID as indicated in ownConsumption.php."""
     enocoo = Enocoo(mock_auth, TIMEZONE)
