@@ -7,8 +7,7 @@ import logging
 from typing import TYPE_CHECKING, Any, Literal
 
 from oocone import errors
-from oocone._internal import scrape_consumption
-from oocone._internal.html_table import parse_table
+from oocone._internal import scrape_consumption, scrape_meter_table
 from oocone.types import (
     UNKNOWN,
     Consumption,
@@ -109,53 +108,11 @@ class Enocoo:
 
     async def get_meter_table(self) -> list[MeterStatus]:
         """Return the status of all individual consumption meters available in the dashboard."""
-        response, soup = await self.auth.request(
-            "POST",
-            "php/newMeterTable.php",
-            data={"dateParam": dt.datetime.now(tz=self.timezone).date().isoformat()},
+        return await scrape_meter_table.get_meter_table(
+            date=dt.datetime.now(tz=self.timezone).date(),
+            timezone=self.timezone,
+            auth=self.auth,
         )
-        html_table = soup.find("table")
-        meter_table = parse_table(html_table)
-
-        def parse_timestamp(timestamp: str) -> dt.datetime:
-            dateformat = r"%d.%m.%Y %H:%M:%S"
-            return dt.datetime.strptime(timestamp, dateformat).replace(tzinfo=self.timezone)
-
-        def parse_reading(reading: str) -> float:
-            # The reading uses german number formatting with a comma as the decimal separator and a
-            # dot as the thousands separator. The convention used by float is a dot as the decimal
-            # separator and comma as the thousands separator.abs
-
-            reading = reading.replace(".", "")  # we don't need a thousands separator here
-            reading = reading.replace(",", ".")
-
-            return float(reading)
-
-        def parse_unit(text: str) -> str:
-            if text == "m3":
-                result = "m³"
-            else:
-                result = text
-
-            return result
-
-        result = []
-        for row in meter_table.rows:
-            try:
-                meter_status = MeterStatus(
-                    name=row["Bezeichnung"],
-                    area=row["Fläche"],
-                    meter_id=row["Zähler-Nr."],
-                    timestamp=parse_timestamp(row["Zeitpunkt"]),
-                    reading=parse_reading(row["Zählerstand"]),
-                    unit=parse_unit(row["Einheit"]),
-                )
-            except Exception as e:
-                raise errors.UnexpectedResponse from e
-
-            result.append(meter_status)
-
-        return result
 
     async def get_area_ids(self) -> list[str]:
         """Get all area IDs available via the dashboard."""
