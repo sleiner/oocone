@@ -66,6 +66,7 @@ addopts = """\
     --cov-report=html \
     --cov-report=term \
 """
+asyncio_default_fixture_loop_scope = "function"
 
 # the productive code already disables a number of warnings, but pytest resets the filters -.-
 # So we instruct pytest explicitly to disable the warnings.
