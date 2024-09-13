@@ -119,7 +119,12 @@ async def main() -> None:
 
         for meter_class in ("Stromverbrauch", "Warmwasser", "Kaltwasser", "Waerme"):
             for interval in ("Tag", "Woche", "Monat", "Jahr"):
-                for date in ("2023-10-29", "2024-01-01", "2024-03-31"):
+                for date in (
+                    "2000-01-01",  # a day for which no data are available
+                    "2023-10-29",  # change from daylight savings time to winter time
+                    "2024-01-01",  # a "regular" day
+                    "2024-03-31",  # change from winter time to daylight savings time
+                ):
                     requests[f"getMeterDataWithParam.{meter_class}.{date}.{interval}.php"] = get(
                         "php/getMeterDataWithParam.php",
                         params={
@@ -134,6 +139,9 @@ async def main() -> None:
         requests["getTrafficLightStatus.php"] = get("php/getTrafficLightStatus.php")
 
         requests["newMeterTable.php"] = get("php/newMeterTable.php", session=logged_in_session)
+        requests["newMeterTable.noDataForCurrentDay.php"] = post(
+            "php/newMeterTable.php", data={"dateParam": "2000-01-01"}, session=logged_in_session
+        )
         requests["newMeterTable.notLoggedIn.php"] = get("php/newMeterTable.php")
 
         requests["ownConsumption.php"] = get("php/ownConsumption.php", session=logged_in_session)
