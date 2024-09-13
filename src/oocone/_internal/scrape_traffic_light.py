@@ -1,0 +1,69 @@
+import logging
+from typing import Any, Literal
+
+from oocone import errors
+from oocone.auth import Auth
+from oocone.types import UNKNOWN, TrafficLightColor, TrafficLightStatus
+
+logger = logging.getLogger(__name__)
+
+
+async def get_traffic_light_status(auth: Auth) -> TrafficLightStatus:
+    """Return the status of the energy traffic light."""
+    response, _ = await auth.request("GET", "php/getTrafficLightStatus.php")
+
+    try:
+        # We parse the response as JSON, even though the Content-Type header might indicate
+        # otherwise.
+        response_data = await response.json(content_type=None)
+    except Exception as e:
+        raise errors.UnexpectedResponse from e
+
+    return TrafficLightStatus(
+        color=_parse_color(response_data),
+        current_energy_price=_parse_current_energy_price(response_data),
+    )
+
+
+def _parse_color(response_data: dict) -> TrafficLightColor | Literal[UNKNOWN]:
+    try:
+        raw = _extract_key_from_response(response_data, "color")
+    except KeyError as e:
+        logger.warning(e)
+        return UNKNOWN
+
+    if raw == "rot":
+        return TrafficLightColor.RED
+    if raw == "gelb":
+        return TrafficLightColor.YELLOW
+    if raw == r"grün":
+        return TrafficLightColor.GREEN
+
+    logger.warning('Got unexpected color: "%s", raw')
+    return UNKNOWN
+
+
+def _parse_current_energy_price(response_data: dict) -> float | Literal[UNKNOWN]:
+    try:
+        raw = _extract_key_from_response(response_data, "currentEnergyprice")
+    except KeyError as e:
+        logger.warning(e)
+        return UNKNOWN
+
+    try:
+        result = float(raw)
+    except ValueError:
+        logger.warning("Could not parse energy price %s as a number", raw)
+        return UNKNOWN
+
+    return result
+
+
+def _extract_key_from_response(response_data: dict[str, Any], key: str) -> Any:
+    try:
+        result = response_data[key]
+    except KeyError:
+        msg = f'API response does not contain key "{key}".\n' f"Response data:\n" f"{response_data}"
+        raise KeyError(msg) from None
+
+    return result
