@@ -2,6 +2,8 @@ import datetime as dt
 import json
 import logging
 import re
+from collections import Counter
+from collections.abc import Iterable
 
 from oocone.auth import Auth
 from oocone.errors import UnexpectedResponse
@@ -100,18 +102,13 @@ def _parse_daily_consumption(
     )
     last_hour = None
     last_value = 0
-    period = dt.timedelta(minutes=15)
+
+    hours, values = _discard_unordered_hours(hours, values, date)
+    periods_per_hour = _get_periods_per_hour(hours)
 
     for hour, value in zip(hours, values, strict=False):
-        if last_hour is not None and hour < last_hour:
-            logger.warning(
-                "Hours are unordered in daily consumption reading for %s: hour %s follows hour %s."
-                " Consumption metric is discarded.",
-                date.isoformat(),
-                hour,
-                last_hour,
-            )
-            continue
+        period = periods_per_hour[hour]
+
         if hour == last_hour:
             time = last_time + period
         else:
@@ -130,6 +127,39 @@ def _parse_daily_consumption(
         last_value = value
 
     return results
+
+
+def _discard_unordered_hours(
+    hours: Iterable[int], values: Iterable[float], date: dt.date
+) -> (list[int], list[float]):
+    filtered_hours = []
+    filtered_values = []
+
+    last_hour = None
+
+    for hour, value in zip(hours, values, strict=False):
+        if last_hour is not None and hour < last_hour:
+            logger.warning(
+                "Hours are unordered in daily consumption reading for %s: hour %s follows hour %s."
+                " Consumption metric is discarded.",
+                date.isoformat(),
+                hour,
+                last_hour,
+            )
+            continue
+
+        filtered_hours.append(hour)
+        filtered_values.append(value)
+
+    return filtered_hours, filtered_values
+
+
+def _get_periods_per_hour(hours: list[int]) -> dict[int, dt.timedelta]:
+    one_hour = dt.timedelta(hours=1)
+    return {
+        hour: one_hour / measurements_per_hour
+        for hour, measurements_per_hour in Counter(hours).items()
+    }
 
 
 def _parse_yearly_consumption(
