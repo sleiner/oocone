@@ -106,8 +106,12 @@ async def test_get_individual_consumption_day(
     )
 
     for hour in {cons.start.hour for cons in consumption}:
-        num_readings = len([cons for cons in consumption if cons.start.hour == hour])
-        assert num_readings == 4, "consumption should contain 4 readings per hour"  # noqa: PLR2004
+        period_sum = sum(
+            [cons.period for cons in consumption if cons.start.hour == hour], start=dt.timedelta()
+        )
+        assert period_sum == dt.timedelta(
+            hours=1
+        ), f"periods for hour {hour} should add up to one hour"
 
 
 @pytest.mark.asyncio

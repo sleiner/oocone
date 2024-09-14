@@ -1,4 +1,4 @@
 
 
 
-{"color":"gr\u00fcn","highEnergyConsumption":0,"currentEnergyprice":0,"showAnnouncementSign":0}
+{"color":"gelb","highEnergyConsumption":0,"currentEnergyprice":17.6572,"showAnnouncementSign":0}
