@@ -52,7 +52,7 @@ async def get_daily_consumption(
             "mClass": _CONSUMPTION_CLASSES[consumption_type],
         },
     )
-    return parse_daily_consumption(
+    return _parse_daily_consumption(
         daily_consumption_json=await response.text(),
         unit=_CONSUMPTION_UNITS[consumption_type],
         date=date,
@@ -74,14 +74,14 @@ async def get_yearly_consumption(
             "mClass": _CONSUMPTION_CLASSES[consumption_type],
         },
     )
-    return parse_yearly_consumption(
+    return _parse_yearly_consumption(
         yearly_consumption_json=await response.text(),
         unit=_CONSUMPTION_UNITS[consumption_type],
         year_number=year_number,
     )
 
 
-def parse_daily_consumption(
+def _parse_daily_consumption(
     *,
     daily_consumption_json: str,
     values_are_integrated: bool,
@@ -132,7 +132,7 @@ def parse_daily_consumption(
     return results
 
 
-def parse_yearly_consumption(
+def _parse_yearly_consumption(
     *,
     yearly_consumption_json: str,
     unit: str,
