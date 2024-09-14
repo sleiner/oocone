@@ -46,7 +46,11 @@ class Enocoo:
         """Return the status of the energy traffic light."""
         return await scrape_traffic_light.get_traffic_light_status(self.auth)
 
-    async def get_meter_table(self, date: dt.date | None = None) -> list[MeterStatus]:
+    async def get_meter_table(
+        self,
+        date: dt.date | None = None,
+        allow_previous_day_until: dt.time | None = None,
+    ) -> list[MeterStatus]:
         """
         Return the status of all individual consumption meters available in the dashboard.
 
@@ -55,16 +59,50 @@ class Enocoo:
         date
             The date for which meter data should be fetched.
             If left to None: the current day.
+        allow_previous_day_until:
+            If set, data from the previous day might be returned if the timestamp is at least the
+            value of this parameter.
 
         """
         if date is None:
             date = dt.datetime.now(tz=self.timezone).date()
 
-        return await scrape_meter_table.get_meter_table(
+        meter_table = await scrape_meter_table.get_meter_table(
             date=date,
             timezone=self.timezone,
             auth=self.auth,
         )
+
+        if not meter_table:
+            day_before = date - dt.timedelta(days=1)
+            meter_table_day_before = await scrape_meter_table.get_meter_table(
+                date=day_before,
+                timezone=self.timezone,
+                auth=self.auth,
+            )
+
+            def status_is_relevant(status: MeterStatus) -> bool:
+                relevant = False
+                if status.timestamp.date() == date:
+                    # status is from today -> relevant
+                    relevant = True
+                elif (
+                    allow_previous_day_until is not None
+                    and status.timestamp.time() >= allow_previous_day_until
+                    and status.timestamp.date() == (date - dt.timedelta(days=1))
+                ):
+                    # status is declared relevant explicitly by user wishes
+                    relevant = True
+                return relevant
+
+            meter_table = [s for s in meter_table_day_before if status_is_relevant(s)]
+            logger.debug(
+                "Found %s relevant meter statuses from the day before (%s), returning those...",
+                len(meter_table),
+                day_before,
+            )
+
+        return meter_table
 
     async def get_area_ids(self) -> list[str]:
         """Get all area IDs available via the dashboard."""

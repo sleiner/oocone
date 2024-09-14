@@ -9,6 +9,7 @@ Before executing it, be sure to set these env variables:
 """
 
 import asyncio
+import datetime as dt
 import os
 import re
 from collections import OrderedDict
@@ -22,6 +23,7 @@ import aiohttp
 PROJECT_DIR = Path(__file__).parent.parent
 RESPONSES_DIR = PROJECT_DIR / "tests" / "data" / "responses"
 BASE_URL = os.environ["ENOCOO_BASE_URL"].rstrip("/")
+NOW = dt.datetime.now()  # noqa: DTZ005
 
 limit_concurrent_requests = asyncio.Semaphore(3)
 T = TypeVar("T")
@@ -142,6 +144,12 @@ async def main() -> None:
         requests["newMeterTable.noDataForCurrentDay.php"] = post(
             "php/newMeterTable.php", data={"dateParam": "2000-01-01"}, session=logged_in_session
         )
+        if NOW.time() < dt.time(hour=0, minute=30):
+            requests["newMeterTable.noDataYetForCurrentDay.php"] = post(
+                "php/newMeterTable.php",
+                data={"dateParam": NOW.date().isoformat()},
+                session=logged_in_session,
+            )
         requests["newMeterTable.notLoggedIn.php"] = get("php/newMeterTable.php")
 
         requests["ownConsumption.php"] = get("php/ownConsumption.php", session=logged_in_session)
@@ -154,7 +162,11 @@ async def main() -> None:
 
     responses = dict(responses)
 
-    for doc in ("newMeterTable.php", "ownConsumption.php"):
+    for doc in (
+        "newMeterTable.php",
+        "ownConsumption.php",
+        "newMeterTable.noDataYetForCurrentDay.php",
+    ):
         responses[doc] = anonymize(responses[doc])
 
     RESPONSES_DIR.mkdir(parents=True, exist_ok=True)

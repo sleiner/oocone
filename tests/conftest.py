@@ -81,7 +81,7 @@ async def _post_new_meter_table(request: web.Request) -> web.Response:
     return response
 
 
-def _new_meter_table_body(*, logged_in: bool, date: dt.date) -> str:
+def _new_meter_table_body(*, logged_in: bool, date: dt.date, time: dt.time | None = None) -> bytes:
     if not logged_in:
         response_path = RESPONSES_DIR / "newMeterTable.notLoggedIn.php"
     else:
@@ -90,7 +90,11 @@ def _new_meter_table_body(*, logged_in: bool, date: dt.date) -> str:
     with Path.open(response_path, "rb") as f:
         body = f.read()
 
-    return body.replace(b"01.01.2021", f"{date.day:02}.{date.month:02}.{date.year:04}".encode())
+    body = body.replace(b"01.01.2021", f"{date.day:02}.{date.month:02}.{date.year:04}".encode())
+    if time is not None:
+        body = body.replace(b"12:34:56", time.isoformat("seconds").encode())
+
+    return body
 
 
 @pytest.fixture

@@ -18,6 +18,9 @@ async def get_meter_table(date: dt.date, timezone: dt.tzinfo, auth: Auth) -> lis
     result = []
     for row in meter_table.rows:
         try:
+            if row["Zeitpunkt"] == "" or row["Einheit"] == "":
+                continue
+
             meter_status = MeterStatus(
                 name=row["Bezeichnung"],
                 area=row["Fläche"],
