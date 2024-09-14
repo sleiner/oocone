@@ -46,10 +46,22 @@ class Enocoo:
         """Return the status of the energy traffic light."""
         return await scrape_traffic_light.get_traffic_light_status(self.auth)
 
-    async def get_meter_table(self) -> list[MeterStatus]:
-        """Return the status of all individual consumption meters available in the dashboard."""
+    async def get_meter_table(self, date: dt.date | None = None) -> list[MeterStatus]:
+        """
+        Return the status of all individual consumption meters available in the dashboard.
+
+        Parameters
+        ----------
+        date
+            The date for which meter data should be fetched.
+            If left to None: the current day.
+
+        """
+        if date is None:
+            date = dt.datetime.now(tz=self.timezone).date()
+
         return await scrape_meter_table.get_meter_table(
-            date=dt.datetime.now(tz=self.timezone).date(),
+            date=date,
             timezone=self.timezone,
             auth=self.auth,
         )

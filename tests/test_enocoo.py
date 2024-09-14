@@ -9,6 +9,8 @@ from oocone.types import ConsumptionType, MeterStatus, TrafficLightColor
 
 from . import TIMEZONE
 
+TODAY = dt.datetime.now(tz=TIMEZONE).date()
+
 
 @pytest.mark.asyncio
 async def test_get_traffic_light_status(mock_auth: Auth) -> None:
@@ -20,14 +22,25 @@ async def test_get_traffic_light_status(mock_auth: Auth) -> None:
 
 
 @pytest.mark.asyncio
-async def test_get_meter_table(mock_auth: Auth) -> None:
+@pytest.mark.parametrize(
+    ("date_param", "expected_timestamp"),
+    [
+        (None, dt.datetime(TODAY.year, TODAY.month, TODAY.day, 12, 34, 56, tzinfo=TIMEZONE)),
+        (dt.date(2012, 12, 12), dt.datetime(2012, 12, 12, 12, 34, 56, tzinfo=TIMEZONE)),
+    ],
+)
+async def test_get_meter_table(
+    date_param: dt.date | None,
+    expected_timestamp: dt.datetime,
+    mock_auth: Auth,
+) -> None:
     """Check that Enocoo.get_traffic_light_status successfully returns for mock API data."""
     expected = [
         MeterStatus(
             name="Verbrauch Kaltwasser H12W34 Bad",
             area="H12W34",
             meter_id="00000001",
-            timestamp=dt.datetime(2021, 1, 1, 12, 34, 56, tzinfo=TIMEZONE),
+            timestamp=expected_timestamp,
             reading=1234.56,
             unit="m³",
         ),
@@ -35,7 +48,7 @@ async def test_get_meter_table(mock_auth: Auth) -> None:
             name="Verbrauch Kaltwasser H12W34 WC",
             area="H12W34",
             meter_id="00000002",
-            timestamp=dt.datetime(2021, 1, 1, 12, 34, 56, tzinfo=TIMEZONE),
+            timestamp=expected_timestamp,
             reading=1234.56,
             unit="m³",
         ),
@@ -43,7 +56,7 @@ async def test_get_meter_table(mock_auth: Auth) -> None:
             name="Verbrauch Strom H12W34",
             area="H12W34",
             meter_id="00000003",
-            timestamp=dt.datetime(2021, 1, 1, 12, 34, 56, tzinfo=TIMEZONE),
+            timestamp=expected_timestamp,
             reading=1234.56,
             unit="kWh",
         ),
@@ -51,7 +64,7 @@ async def test_get_meter_table(mock_auth: Auth) -> None:
             name="Verbrauch Wärme H12W34",
             area="H12W34",
             meter_id="00000004",
-            timestamp=dt.datetime(2021, 1, 1, 12, 34, 56, tzinfo=TIMEZONE),
+            timestamp=expected_timestamp,
             reading=1234.56,
             unit="kWh",
         ),
@@ -59,7 +72,7 @@ async def test_get_meter_table(mock_auth: Auth) -> None:
             name="Verbrauch Warmwasser H12W34 Bad",
             area="H12W34",
             meter_id="00000005",
-            timestamp=dt.datetime(2021, 1, 1, 12, 34, 56, tzinfo=TIMEZONE),
+            timestamp=expected_timestamp,
             reading=1234.56,
             unit="m³",
         ),
@@ -67,14 +80,14 @@ async def test_get_meter_table(mock_auth: Auth) -> None:
             name="Verbrauch Warmwasser H12W34 WC",
             area="H12W34",
             meter_id="00000006",
-            timestamp=dt.datetime(2021, 1, 1, 12, 34, 56, tzinfo=TIMEZONE),
+            timestamp=expected_timestamp,
             reading=1234.56,
             unit="m³",
         ),
     ]
 
     enocoo = Enocoo(mock_auth, timezone=TIMEZONE)
-    result = await enocoo.get_meter_table()
+    result = await enocoo.get_meter_table(date=date_param)
     assert result == expected
 
 
