@@ -1,12 +1,16 @@
 import datetime as dt
+import logging
 
 from oocone import errors
 from oocone._internal.html_table import parse_table
 from oocone.auth import Auth
 from oocone.types import MeterStatus
 
+logger = logging.getLogger(__name__)
+
 
 async def get_meter_table(date: dt.date, timezone: dt.tzinfo, auth: Auth) -> list[MeterStatus]:
+    logger.debug("Scraping meter table for %s...", date)
     response, soup = await auth.request(
         "POST",
         "php/newMeterTable.php",

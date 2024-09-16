@@ -29,6 +29,7 @@ NUM_MONTHS = 12
 
 
 async def get_area_ids(auth: Auth) -> list[str]:
+    logger.debug("Scraping available area IDs...")
     response, _ = await auth.request("GET", "php/ownConsumption.php")
     html = await response.text()
 
@@ -44,6 +45,12 @@ async def get_area_ids(auth: Auth) -> list[str]:
 async def get_daily_consumption(
     consumption_type: ConsumptionType, area_id: str, date: dt.date, timezone: dt.tzinfo, auth: Auth
 ) -> list[Consumption]:
+    logger.debug(
+        "Scraping daily %s consumption on %s for area with ID %s...",
+        consumption_type,
+        date,
+        area_id,
+    )
     response, _ = await auth.request(
         "GET",
         "php/getMeterDataWithParam.php",
@@ -66,6 +73,12 @@ async def get_daily_consumption(
 async def get_yearly_consumption(
     consumption_type: ConsumptionType, area_id: str, year_number: int, auth: Auth
 ) -> list[Consumption]:
+    logger.debug(
+        "Scraping yearly %s consumption in %s for area with ID %s...",
+        consumption_type,
+        year_number,
+        area_id,
+    )
     response, _ = await auth.request(
         "GET",
         "php/getMeterDataWithParam.php",
