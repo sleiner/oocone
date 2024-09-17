@@ -169,8 +169,10 @@ def _discard_unordered_hours(
 
 def _get_periods_per_hour(hours: list[int]) -> dict[int, dt.timedelta]:
     one_hour = dt.timedelta(hours=1)
+    max_period = dt.timedelta(minutes=15)
+
     return {
-        hour: one_hour / measurements_per_hour
+        hour: min(one_hour / measurements_per_hour, max_period)
         for hour, measurements_per_hour in Counter(hours).items()
     }
 
