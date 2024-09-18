@@ -1,6 +1,33 @@
 # Changelog
 
 <!-- insertion marker -->
+## [v0.4.0](https://github.com/sleiner/oocone/releases/tag/0.4.0) (2024-09-18)
+
+### Features & Improvements
+
+- We made `Enocoo.get_meter_table` more flexible:
+
+  -   You can now pass in a date for which the latest meter table shall be returned.
+  -   If no data is available yet for the meter table page of the given day, we try looking at the meter table page for the previous day.
+      If that contains data for the given day at 00:00, we return that data.
+      Additionally, you may set a time until which data from the previous day are still acceptable.
+      This is helpful, because data from the Enocoo website may lag behind up until 30 minutes in regular operation.
+      So, shortly after midnight, the newest data available might be from 23:45.
+      If you set the `allow_previous_day_until` parameter to `datetime.time(23, 45)`, you will get those data shortly after midnight.
+
+  ([#26](https://github.com/sleiner/oocone/issues/26))
+
+### Bug Fixes
+
+- We now ignore the false-positive `MarkupResemblesLocatorWarning` from `beautifulsoup4`. ([#19](https://github.com/sleiner/oocone/issues/19))
+- Adapt to new data returned on change from summer to winter time:
+  We don't throw an error anymore if we get more than four data points per hour. ([#25](https://github.com/sleiner/oocone/issues/25))
+
+### Miscellaneous
+
+- More debug logging has been added. ([#26](https://github.com/sleiner/oocone/issues/26))
+
+
 ## [v0.3.1](https://github.com/sleiner/oocone/releases/tag/0.3.1) (2024-07-29)
 
 
