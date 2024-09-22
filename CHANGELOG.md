@@ -1,6 +1,15 @@
 # Changelog
 
 <!-- insertion marker -->
+## [v0.5.0](https://github.com/sleiner/oocone/releases/tag/0.5.0) (2024-09-22)
+
+### Removals and Deprecations
+
+- `MeterStatus.value` and `TrafficLightStatus.current_energy_price` are not a `float` anymore.
+  Instead, they now have the new type `Quantity`, which contains not only the numeric value, but also a unit.
+  Consequently, `MeterStatus.unit` has been removed. ([#28](https://github.com/sleiner/oocone/issues/28))
+
+
 ## [v0.4.0](https://github.com/sleiner/oocone/releases/tag/0.4.0) (2024-09-18)
 
 ### Features & Improvements
