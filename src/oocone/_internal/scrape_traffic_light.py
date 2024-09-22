@@ -3,7 +3,7 @@ from typing import Any, Literal
 
 from oocone import errors
 from oocone.auth import Auth
-from oocone.types import UNKNOWN, TrafficLightColor, TrafficLightStatus
+from oocone.types import UNKNOWN, Quantity, TrafficLightColor, TrafficLightStatus
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +44,7 @@ def _parse_color(response_data: dict) -> TrafficLightColor | Literal[UNKNOWN]:
     return UNKNOWN
 
 
-def _parse_current_energy_price(response_data: dict) -> float | Literal[UNKNOWN]:
+def _parse_current_energy_price(response_data: dict) -> Quantity | Literal[UNKNOWN]:
     try:
         raw = _extract_key_from_response(response_data, "currentEnergyprice")
     except KeyError as e:
@@ -52,7 +52,10 @@ def _parse_current_energy_price(response_data: dict) -> float | Literal[UNKNOWN]
         return UNKNOWN
 
     try:
-        result = float(raw)
+        result = Quantity(
+            value=float(raw),
+            unit="ct/kWh",  # Even though the API does not tell us that directly, the unit is Cents
+        )
     except ValueError:
         logger.warning("Could not parse energy price %s as a number", raw)
         return UNKNOWN

@@ -4,7 +4,7 @@ import logging
 from oocone import errors
 from oocone._internal.html_table import parse_table
 from oocone.auth import Auth
-from oocone.types import MeterStatus
+from oocone.types import MeterStatus, Quantity
 
 logger = logging.getLogger(__name__)
 
@@ -30,8 +30,10 @@ async def get_meter_table(date: dt.date, timezone: dt.tzinfo, auth: Auth) -> lis
                 area=row["Fläche"],
                 meter_id=row["Zähler-Nr."],
                 timestamp=_parse_timestamp(row["Zeitpunkt"], timezone),
-                reading=_parse_reading(row["Zählerstand"]),
-                unit=_parse_unit(row["Einheit"]),
+                reading=Quantity(
+                    value=_parse_reading(row["Zählerstand"]),
+                    unit=_parse_unit(row["Einheit"]),
+                ),
             )
         except Exception as e:
             raise errors.UnexpectedResponse from e
