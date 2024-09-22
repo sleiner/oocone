@@ -18,11 +18,19 @@ UNKNOWN = "UNKNOWN"
 
 
 @dataclass
+class Quantity:
+    """A representation of a physical quantity, by value and unit."""
+
+    value: float
+    unit: str
+
+
+@dataclass
 class TrafficLightStatus:
     """Data returned via the traffic light page."""
 
     color: TrafficLightColor | Literal[UNKNOWN]
-    current_energy_price: float | Literal[UNKNOWN]
+    current_energy_price: Quantity | Literal[UNKNOWN]
 
 
 @dataclass
@@ -33,8 +41,7 @@ class MeterStatus:
     area: str
     meter_id: str
     timestamp: dt.datetime
-    reading: float
-    unit: str
+    reading: Quantity
 
 
 class ConsumptionType(enum.StrEnum):

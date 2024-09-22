@@ -13,4 +13,4 @@ async def test_happy_path(mock_auth: Auth) -> None:
     enocoo = Enocoo(mock_auth, TIMEZONE)
     result = await enocoo.get_traffic_light_status()
     assert isinstance(result.color, TrafficLightColor)
-    assert isinstance(result.current_energy_price, float)
+    assert isinstance(result.current_energy_price.value, float)

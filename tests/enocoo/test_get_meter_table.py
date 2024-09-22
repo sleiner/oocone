@@ -5,7 +5,7 @@ import datetime as dt
 import pytest
 
 from oocone import Auth, Enocoo
-from oocone.types import MeterStatus
+from oocone.types import MeterStatus, Quantity
 from tests import RESPONSES_DIR, TIMEZONE, conftest
 
 TODAY = dt.datetime.now(tz=TIMEZONE).date()
@@ -22,48 +22,42 @@ def _expected_meter_table(date: dt.date, time: dt.time | None = None) -> list[Me
             area="H12W34",
             meter_id="00000001",
             timestamp=expected_timestamp,
-            reading=1234.56,
-            unit="m³",
+            reading=Quantity(value=1234.56, unit="m³"),
         ),
         MeterStatus(
             name="Verbrauch Kaltwasser H12W34 WC",
             area="H12W34",
             meter_id="00000002",
             timestamp=expected_timestamp,
-            reading=1234.56,
-            unit="m³",
+            reading=Quantity(value=1234.56, unit="m³"),
         ),
         MeterStatus(
             name="Verbrauch Strom H12W34",
             area="H12W34",
             meter_id="00000003",
             timestamp=expected_timestamp,
-            reading=1234.56,
-            unit="kWh",
+            reading=Quantity(1234.56, unit="kWh"),
         ),
         MeterStatus(
             name="Verbrauch Wärme H12W34",
             area="H12W34",
             meter_id="00000004",
             timestamp=expected_timestamp,
-            reading=1234.56,
-            unit="kWh",
+            reading=Quantity(1234.56, unit="kWh"),
         ),
         MeterStatus(
             name="Verbrauch Warmwasser H12W34 Bad",
             area="H12W34",
             meter_id="00000005",
             timestamp=expected_timestamp,
-            reading=1234.56,
-            unit="m³",
+            reading=Quantity(1234.56, unit="m³"),
         ),
         MeterStatus(
             name="Verbrauch Warmwasser H12W34 WC",
             area="H12W34",
             meter_id="00000006",
             timestamp=expected_timestamp,
-            reading=1234.56,
-            unit="m³",
+            reading=Quantity(1234.56, unit="m³"),
         ),
     ]
 
