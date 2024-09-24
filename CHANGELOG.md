@@ -1,6 +1,14 @@
 # Changelog
 
 <!-- insertion marker -->
+## [v0.5.1](https://github.com/sleiner/oocone/releases/tag/0.5.1) (2024-09-25)
+
+### Bug Fixes
+
+- Consumption data in the enocoo dashboard used to be off by one unit of time (usually 15 minutes).
+  We are now compensating for this. ([#30](https://github.com/sleiner/oocone/issues/30))
+
+
 ## [v0.5.0](https://github.com/sleiner/oocone/releases/tag/0.5.0) (2024-09-22)
 
 ### Removals and Deprecations
