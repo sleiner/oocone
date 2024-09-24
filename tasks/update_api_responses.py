@@ -123,9 +123,13 @@ async def main() -> None:
             for interval in ("Tag", "Woche", "Monat", "Jahr"):
                 for date in (
                     "2000-01-01",  # a day for which no data are available
+                    "2000-01-02",  # ... and the next day
                     "2023-10-29",  # change from daylight savings time to winter time
+                    "2023-10-30",  # ... and the next day
                     "2024-01-01",  # a "regular" day
+                    "2024-01-02",  # ... and the next day
                     "2024-03-31",  # change from winter time to daylight savings time
+                    "2024-04-01",  # ... and the next day
                 ):
                     requests[f"getMeterDataWithParam.{meter_class}.{date}.{interval}.php"] = get(
                         "php/getMeterDataWithParam.php",
@@ -167,7 +171,8 @@ async def main() -> None:
         "ownConsumption.php",
         "newMeterTable.noDataYetForCurrentDay.php",
     ):
-        responses[doc] = anonymize(responses[doc])
+        if doc in responses:
+            responses[doc] = anonymize(responses[doc])
 
     RESPONSES_DIR.mkdir(parents=True, exist_ok=True)
     for name, response in responses.items():

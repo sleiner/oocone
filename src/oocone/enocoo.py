@@ -4,10 +4,11 @@ from __future__ import annotations
 
 import datetime as dt
 import logging
+import warnings
 from typing import TYPE_CHECKING, Literal
 
 from oocone import errors
-from oocone._internal import scrape_consumption, scrape_meter_table, scrape_traffic_light
+from oocone._internal import quirks, scrape_consumption, scrape_meter_table, scrape_traffic_light
 
 if TYPE_CHECKING:
     from oocone.auth import Auth
@@ -114,8 +115,43 @@ class Enocoo:
         during: dt.date,
         interval: Literal["day", "year"],
         area_id: str,
+        compensate_off_by_one: bool | None = None,
     ) -> list[Consumption]:
         """Return individual consumption statistics for a given meter type."""
+        if compensate_off_by_one is None:
+            compensate_off_by_one = True
+
+        if compensate_off_by_one and interval != "day":
+            warnings.warn(
+                "Data points in the enocoo dashboard are off by one. Compensation for this is only"
+                " available when fetching daily consumption statistics.",
+                stacklevel=1,
+            )
+            compensate_off_by_one = False
+
+        async def fetch_data(date: dt.date) -> list[Consumption]:
+            return await self._get_individual_consumption_uncompensated(
+                consumption_type=consumption_type, during=date, interval=interval, area_id=area_id
+            )
+
+        if compensate_off_by_one:
+            result = await quirks.get_off_by_one_compensated_data(
+                fetch_data=fetch_data,
+                date=during,
+                timezone=self.timezone,
+            )
+        else:
+            result = await fetch_data(date=during)
+
+        return result
+
+    async def _get_individual_consumption_uncompensated(
+        self,
+        consumption_type: ConsumptionType,
+        during: dt.date,
+        interval: Literal["day", "year"],
+        area_id: str,
+    ) -> list[Consumption]:
         if interval == "day":
             return await scrape_consumption.get_daily_consumption(
                 consumption_type=consumption_type,
