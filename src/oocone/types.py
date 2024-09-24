@@ -17,7 +17,7 @@ class TrafficLightColor(enum.StrEnum):
 UNKNOWN = "UNKNOWN"
 
 
-@dataclass
+@dataclass(frozen=True)
 class Quantity:
     """A representation of a physical quantity, by value and unit."""
 
@@ -25,7 +25,7 @@ class Quantity:
     unit: str
 
 
-@dataclass
+@dataclass(frozen=True)
 class TrafficLightStatus:
     """Data returned via the traffic light page."""
 
@@ -33,7 +33,7 @@ class TrafficLightStatus:
     current_energy_price: Quantity | Literal[UNKNOWN]
 
 
-@dataclass
+@dataclass(frozen=True)
 class MeterStatus:
     """Information about a meter and its current state."""
 
@@ -53,7 +53,7 @@ class ConsumptionType(enum.StrEnum):
     HEAT = enum.auto()
 
 
-@dataclass
+@dataclass(frozen=True)
 class Consumption:
     """Indicates the amount of consumption at a specific time."""
 
