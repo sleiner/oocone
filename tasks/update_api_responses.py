@@ -167,7 +167,8 @@ async def main() -> None:
         "ownConsumption.php",
         "newMeterTable.noDataYetForCurrentDay.php",
     ):
-        responses[doc] = anonymize(responses[doc])
+        if doc in responses:
+            responses[doc] = anonymize(responses[doc])
 
     RESPONSES_DIR.mkdir(parents=True, exist_ok=True)
     for name, response in responses.items():
