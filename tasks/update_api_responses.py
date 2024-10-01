@@ -119,18 +119,30 @@ async def main() -> None:
             await post_login(username, password, session=logged_in_session)
         )
 
-        for meter_class in ("Stromverbrauch", "Warmwasser", "Kaltwasser", "Waerme"):
-            for interval in ("Tag", "Woche", "Monat", "Jahr"):
-                for date in (
-                    "2000-01-01",  # a day for which no data are available
-                    "2000-01-02",  # ... and the next day
-                    "2023-10-29",  # change from daylight savings time to winter time
-                    "2023-10-30",  # ... and the next day
-                    "2024-01-01",  # a "regular" day
-                    "2024-01-02",  # ... and the next day
-                    "2024-03-31",  # change from winter time to daylight savings time
-                    "2024-04-01",  # ... and the next day
-                ):
+        for interval in ("Tag", "Woche", "Monat", "Jahr"):
+            for date in (
+                "2000-01-01",  # a day for which no data are available
+                "2000-01-02",  # ... and the next day
+                "2023-10-29",  # change from daylight savings time to winter time
+                "2023-10-30",  # ... and the next day
+                "2024-01-01",  # a "regular" day
+                "2024-01-02",  # ... and the next day
+                "2024-03-31",  # change from winter time to daylight savings time
+                "2024-04-01",  # ... and the next day
+            ):
+                requests[f"getPVDataDetails.GesamtverbrauchUndErzeugung.{date}.{interval}.php"] = (
+                    get(
+                        "php/getPVDataDetails.php",
+                        params={
+                            "from": date,
+                            "intVal": interval,
+                            "diagType": "GesamtverbrauchUndErzeugung",
+                        },
+                        session=logged_in_session,
+                    )
+                )
+
+                for meter_class in ("Stromverbrauch", "Warmwasser", "Kaltwasser", "Waerme"):
                     requests[f"getMeterDataWithParam.{meter_class}.{date}.{interval}.php"] = get(
                         "php/getMeterDataWithParam.php",
                         params={
