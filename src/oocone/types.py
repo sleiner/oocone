@@ -62,3 +62,17 @@ class Consumption:
 
     value: float
     unit: str
+
+
+@dataclass(frozen=True)
+class PhotovoltaicSummary:
+    """Information about the quarter's solar generation and power consumption in a given period."""
+
+    start: dt.datetime
+    period: dt.timedelta
+
+    consumption: Quantity
+    generation: Quantity
+
+    self_sufficiency: float | None
+    own_consumption: float | None

@@ -72,6 +72,23 @@ async def _get_meter_data_with_param(request: web.Request) -> web.Response:
     return response
 
 
+async def _get_pv_data_details(request: web.Request) -> web.Response:
+    if request.cookies.get("logged_in") != "true":
+        response_path = RESPONSES_DIR / "newMeterTable.notLoggedIn.php"
+    else:
+        q = request.query
+        response_path = (
+            RESPONSES_DIR
+            / f"getPVDataDetails.GesamtverbrauchUndErzeugung.{q['from']}.{q['intVal']}.php"
+        )
+
+    response = web.Response()
+    with Path.open(response_path, "rb") as f:
+        response.body = f.read()
+
+    return response
+
+
 async def _post_new_meter_table(request: web.Request) -> web.Response:
     response = web.Response()
     response.body = _new_meter_table_body(
@@ -109,6 +126,7 @@ def mock_api(event_loop: AbstractEventLoop, aiohttp_client: AiohttpClient) -> Te
         _response_from_file("getTrafficLightStatus.php", needs_login=False),
     )
     app.router.add_get("/php/getMeterDataWithParam.php", _get_meter_data_with_param)
+    app.router.add_get("/php/getPVDataDetails.php", _get_pv_data_details)
     app.router.add_post("/php/newMeterTable.php", _post_new_meter_table)
     app.router.add_get("/php/ownConsumption.php", _response_from_file("ownConsumption.php"))
     return event_loop.run_until_complete(aiohttp_client(app))

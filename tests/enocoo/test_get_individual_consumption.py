@@ -31,10 +31,16 @@ def _get_consumption_sum(
 
     if consumption_type == ConsumptionType.HEAT:
         # Heat readings are integrated, so we need to calculate differences
-        raw_readings = enocoo_response(date)[0]
+        raw_readings, hours = enocoo_response(date)[:2]
         readings_current_day = [raw_readings[0], raw_readings[-1] - raw_readings[0]]
     else:
-        readings_current_day = enocoo_response(date)[0]
+        readings_current_day, hours = enocoo_response(date)[:2]
+
+        # Remove any next-day data that we might see
+        while len(hours) >= 1 and hours[-1] == 0:
+            hours.pop()
+            readings_current_day.pop()
+
     if compensate_off_by_one:
         readings_next_day = enocoo_response(date + dt.timedelta(days=1))[0]
         relevant_readings = readings_current_day[1:] + readings_next_day[:1]

@@ -8,7 +8,13 @@ import warnings
 from typing import TYPE_CHECKING, Literal
 
 from oocone import errors
-from oocone._internal import quirks, scrape_consumption, scrape_meter_table, scrape_traffic_light
+from oocone._internal import (
+    quirks,
+    scrape_consumption,
+    scrape_meter_table,
+    scrape_photovoltaic,
+    scrape_traffic_light,
+)
 
 if TYPE_CHECKING:
     from oocone.auth import Auth
@@ -16,6 +22,7 @@ if TYPE_CHECKING:
         Consumption,
         ConsumptionType,
         MeterStatus,
+        PhotovoltaicSummary,
         TrafficLightStatus,
     )
 
@@ -152,21 +159,37 @@ class Enocoo:
         interval: Literal["day", "year"],
         area_id: str,
     ) -> list[Consumption]:
-        if interval == "day":
-            return await scrape_consumption.get_daily_consumption(
-                consumption_type=consumption_type,
-                area_id=area_id,
-                date=during,
-                timezone=self.timezone,
-                auth=self.auth,
-            )
-        if interval == "year":
-            return await scrape_consumption.get_yearly_consumption(
-                consumption_type=consumption_type,
-                area_id=area_id,
-                year_number=during.year,
-                auth=self.auth,
-            )
+        match interval:
+            case "day":
+                return await scrape_consumption.get_daily_consumption(
+                    consumption_type=consumption_type,
+                    area_id=area_id,
+                    date=during,
+                    timezone=self.timezone,
+                    auth=self.auth,
+                )
+            case "year":
+                return await scrape_consumption.get_yearly_consumption(
+                    consumption_type=consumption_type,
+                    area_id=area_id,
+                    year_number=during.year,
+                    auth=self.auth,
+                )
+            case _:
+                msg = f'Illegal interval "{interval}"'
+                raise errors.OoconeMisuse(msg)
 
-        msg = f'Illegal interval "{interval}"'
-        raise errors.OoconeMisuse(msg)
+    async def get_quarter_photovoltaic_data(
+        self,
+        during: dt.date,
+        interval: Literal["day", "year"],
+    ) -> list[PhotovoltaicSummary]:
+        """Return photovoltaic data for the whole quarter."""
+        match interval:
+            case "day":
+                return await scrape_photovoltaic.get_daily_photovoltaic_data(
+                    date=during, timezone=self.timezone, auth=self.auth
+                )
+            case _:
+                msg = f'Illegal interval "{interval}"'
+                raise errors.OoconeMisuse(msg)

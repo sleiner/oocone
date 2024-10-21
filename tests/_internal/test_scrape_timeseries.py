@@ -1,9 +1,9 @@
-"""Tests for oocone._internal.scrape_consumption."""
+"""Tests for oocone._internal.scrape_timeseries."""
 
 import datetime as dt
 from itertools import chain, repeat
 
-from oocone._internal import scrape_consumption
+from oocone._internal import scrape_timeseries
 
 
 def test_get_periods_per_hour_four_points_per_hour() -> None:
@@ -11,7 +11,7 @@ def test_get_periods_per_hour_four_points_per_hour() -> None:
     hours = list(chain(*(repeat(hour, 4) for hour in range(24))))
     expected_periods = {hour: dt.timedelta(minutes=15) for hour in range(24)}
 
-    periods = scrape_consumption._get_periods_per_hour(hours)
+    periods = scrape_timeseries.get_periods_per_hour(hours)
     assert periods == expected_periods
 
 
@@ -25,7 +25,7 @@ def test_get_periods_per_hour_more_points_per_hour() -> None:
         3: dt.timedelta(minutes=15),
     }
 
-    periods = scrape_consumption._get_periods_per_hour(hours)
+    periods = scrape_timeseries.get_periods_per_hour(hours)
     assert periods == expected_periods
 
 
@@ -38,5 +38,5 @@ def test_get_periods_per_hour_less_points_per_hour() -> None:
         2: dt.timedelta(minutes=15),
     }
 
-    periods = scrape_consumption._get_periods_per_hour(hours)
+    periods = scrape_timeseries.get_periods_per_hour(hours)
     assert periods == expected_periods
