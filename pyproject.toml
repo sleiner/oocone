@@ -2,9 +2,9 @@
 name = "oocone"
 description = "Unofficial library for interacting with an enocoo energy management system"
 authors = [{ name = "Simon Leiner", email = "simon@leiner.me" }]
-license = { text = "ISC" }
+license = {text = "ISC"}
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 dependencies = [
     "aiohttp>=3.10.5",
     "beautifulsoup4>=4.12.3",
@@ -52,7 +52,7 @@ doc = [
 release = "python -m tasks.release"
 update_api_responses = "python -m tasks.update_api_responses"
 test = "pytest tests/"
-doc = { shell = "cd docs && mkdocs serve", help = "Start the dev server for doc preview" }
+doc = {shell = "cd docs && mkdocs serve", help = "Start the dev server for doc preview"}
 lint = "pre-commit run --all-files"
 
 [tool.pytest.ini_options]
