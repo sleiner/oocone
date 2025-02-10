@@ -67,7 +67,7 @@ def _extract_key_from_response(response_data: dict[str, Any], key: str) -> Any:
     try:
         result = response_data[key]
     except KeyError:
-        msg = f'API response does not contain key "{key}".\n' f"Response data:\n" f"{response_data}"
+        msg = f'API response does not contain key "{key}".\nResponse data:\n{response_data}'
         raise KeyError(msg) from None
 
     return result

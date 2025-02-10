@@ -23,7 +23,7 @@ def bump_version(
         patch = True
     if len([v for v in [major, minor, patch] if v]) != 1:
         print(
-            "Only one option should be provided among " "(--major, --minor, --patch)",
+            "Only one option should be provided among (--major, --minor, --patch)",
             file=sys.stderr,
         )
         sys.exit(1)
