@@ -6,7 +6,7 @@ import datetime as dt
 import itertools
 from collections.abc import Callable
 
-from oocone.types import Consumption
+from oocone.model import Consumption
 
 
 async def get_off_by_one_compensated_data(

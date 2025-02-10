@@ -4,7 +4,7 @@ import logging
 from oocone import errors
 from oocone._internal.html_table import parse_table
 from oocone.auth import Auth
-from oocone.types import MeterStatus, Quantity
+from oocone.model import MeterStatus, Quantity
 
 logger = logging.getLogger(__name__)
 

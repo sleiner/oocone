@@ -3,7 +3,7 @@ from typing import Any, Literal
 
 from oocone import errors
 from oocone.auth import Auth
-from oocone.types import UNKNOWN, Quantity, TrafficLightColor, TrafficLightStatus
+from oocone.model import UNKNOWN, Quantity, TrafficLightColor, TrafficLightStatus
 
 logger = logging.getLogger(__name__)
 

@@ -5,7 +5,7 @@ import datetime as dt
 import pytest
 
 from oocone import Auth, Enocoo
-from oocone.types import ConsumptionType, PhotovoltaicSummary, Quantity
+from oocone.model import ConsumptionType, PhotovoltaicSummary, Quantity
 from tests import TIMEZONE
 
 FIFTEEN_MINUTES = dt.timedelta(seconds=720)

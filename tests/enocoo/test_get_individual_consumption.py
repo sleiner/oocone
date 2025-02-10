@@ -7,7 +7,7 @@ import pytest
 
 from oocone import Auth, Enocoo
 from oocone._internal.scrape_consumption import _CONSUMPTION_CLASSES as CONSUMPTION_CLASSES
-from oocone.types import ConsumptionType
+from oocone.model import ConsumptionType
 from tests import RESPONSES_DIR, TIMEZONE
 
 

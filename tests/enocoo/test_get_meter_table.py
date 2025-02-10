@@ -5,7 +5,7 @@ import datetime as dt
 import pytest
 
 from oocone import Auth, Enocoo
-from oocone.types import MeterStatus, Quantity
+from oocone.model import MeterStatus, Quantity
 from tests import RESPONSES_DIR, TIMEZONE, conftest
 
 TODAY = dt.datetime.now(tz=TIMEZONE).date()

@@ -3,7 +3,7 @@
 import pytest
 
 from oocone import Auth, Enocoo
-from oocone.types import TrafficLightColor
+from oocone.model import TrafficLightColor
 from tests import TIMEZONE
 
 
