@@ -18,7 +18,7 @@ from oocone._internal import (
 
 if TYPE_CHECKING:
     from oocone.auth import Auth
-    from oocone.types import (
+    from oocone.model import (
         Consumption,
         ConsumptionType,
         MeterStatus,

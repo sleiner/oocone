@@ -3,7 +3,7 @@ from typing import Any, Literal
 
 from oocone import errors
 from oocone.auth import Auth
-from oocone.types import UNKNOWN, Quantity, TrafficLightColor, TrafficLightStatus
+from oocone.model import UNKNOWN, Quantity, TrafficLightColor, TrafficLightStatus
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +67,7 @@ def _extract_key_from_response(response_data: dict[str, Any], key: str) -> Any:
     try:
         result = response_data[key]
     except KeyError:
-        msg = f'API response does not contain key "{key}".\n' f"Response data:\n" f"{response_data}"
+        msg = f'API response does not contain key "{key}".\nResponse data:\n{response_data}'
         raise KeyError(msg) from None
 
     return result

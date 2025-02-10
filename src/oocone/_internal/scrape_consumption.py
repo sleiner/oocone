@@ -6,7 +6,7 @@ import re
 from oocone._internal.scrape_timeseries import discard_unordered_hours, get_periods_per_hour
 from oocone.auth import Auth
 from oocone.errors import UnexpectedResponse
-from oocone.types import Consumption, ConsumptionType
+from oocone.model import Consumption, ConsumptionType
 
 logger = logging.getLogger(__name__)
 

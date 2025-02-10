@@ -7,7 +7,7 @@ import pytest
 
 from oocone import Auth, Enocoo
 from oocone._internal.scrape_consumption import _CONSUMPTION_CLASSES as CONSUMPTION_CLASSES
-from oocone.types import ConsumptionType
+from oocone.model import ConsumptionType
 from tests import RESPONSES_DIR, TIMEZONE
 
 
@@ -93,9 +93,9 @@ async def test_daily(
         period_sum = sum(
             [cons.period for cons in consumption if cons.start.hour == hour], start=dt.timedelta()
         )
-        assert period_sum == dt.timedelta(
-            hours=1
-        ), f"periods for hour {hour} should add up to one hour"
+        assert period_sum == dt.timedelta(hours=1), (
+            f"periods for hour {hour} should add up to one hour"
+        )
 
     expected_sum = _get_consumption_sum(
         consumption_type, date=date, interval="Tag", compensate_off_by_one=compensate_quirks
