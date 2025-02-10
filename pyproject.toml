@@ -5,15 +5,38 @@ authors = [{ name = "Simon Leiner", email = "simon@leiner.me" }]
 license = {text = "ISC"}
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = [
-    "aiohttp>=3.10.5",
-    "beautifulsoup4>=4.12.3",
-]
 dynamic = ["version"]
-
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Programming Language :: Python :: 3",
+]
+dependencies = [
+    "aiohttp>=3.11.12",
+    "beautifulsoup4>=4.13.3",
+]
+
+[dependency-groups]
+dev = [
+    "towncrier>=24.8.0",
+    "parver>=0.5",
+]
+doc = [
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.5.36",
+]
+test = [
+    "pytest>=8.3.4",
+    "pytest-aiohttp>=1.1.0",
+    "pytest-asyncio>=0.25.3",
+    "pytest-cov>=6.0.0",
+    "typeguard>=4.4.1",
+    "tzdata>=2025.1",
+    "pytest>=8.3.3",
+    "pytest-aiohttp>=1.0.5",
+    "pytest-asyncio>=0.24.0",
+    "pytest-cov>=5.0.0",
+    "typeguard>=4.3.0",
+    "tzdata>=2024.2",
 ]
 
 [project.urls]
@@ -29,24 +52,6 @@ source = "scm"
 
 [tool.pdm.build]
 package-dir = "src"
-
-[tool.pdm.dev-dependencies]
-test = [
-    "pytest>=8.3.3",
-    "pytest-aiohttp>=1.0.5",
-    "pytest-asyncio>=0.24.0",
-    "pytest-cov>=5.0.0",
-    "typeguard>=4.3.0",
-    "tzdata>=2024.2",
-]
-dev = [
-    "towncrier>=24.8.0",
-    "parver>=0.5",
-]
-doc = [
-    "mkdocs>=1.6.1",
-    "mkdocs-material>=9.5.36",
-]
 
 [tool.pdm.scripts]
 release = "python -m tasks.release"
@@ -85,7 +90,6 @@ select = [
 ]
 
 ignore = [
-    "ANN101", # Missing type annotation for `self` in method
     "ANN401", # Dynamically typed expressions (typing.Any) are disallowed
     "COM812", # incompatible with formatter
     "D203",   # no-blank-line-before-class (incompatible with formatter)

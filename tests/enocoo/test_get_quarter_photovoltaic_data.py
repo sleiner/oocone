@@ -374,12 +374,7 @@ async def test_yearly(consumption_type: ConsumptionType, mock_auth: Auth) -> Non
     """Check that enocoo.get_individual_consumption returns yearly data in expected format."""
     enocoo = Enocoo(mock_auth, TIMEZONE)
 
-    with (
-        pytest.warns(UserWarning, match="off by one"),
-        pytest.warns(
-            match="input looks more like a filename than markup"  # this is supposed to be filtered
-        ),
-    ):
+    with pytest.warns(UserWarning, match="off by one"):
         consumption = await enocoo.get_individual_consumption(
             consumption_type=consumption_type,
             area_id="123",
