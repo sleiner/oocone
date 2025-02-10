@@ -50,3 +50,27 @@ def discard_unordered_hours[ValueT](
         last_hour = hour
 
     return filtered_hours, filtered_values
+
+
+def day_string_to_date(day_str: str, month: int, year: int) -> dt.date:
+    r"""
+    Convert a day string to an actual date.
+
+    Args:
+        day_str: a string returned by Enocoo APIs. Example: "So.\n 01."
+        month: current month (1-2)
+        year: current year
+
+    """
+    day = int(day_str.splitlines()[-1].strip().lstrip("0").rstrip("."))
+    return dt.date(year, month, day)
+
+
+def length_of_day(day: dt.date, timezone: dt.tzinfo) -> dt.timedelta:
+    midnight = dt.time(0, 0)
+    next_day = day + dt.timedelta(days=1)
+
+    midnight = dt.datetime.combine(day, dt.time(0, 0), tzinfo=timezone)
+    next_midnight = dt.datetime.combine(next_day, dt.time(0, 0), tzinfo=timezone)
+
+    return next_midnight - midnight

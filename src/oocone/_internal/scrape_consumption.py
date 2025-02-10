@@ -3,7 +3,12 @@ import json
 import logging
 import re
 
-from oocone._internal.scrape_timeseries import discard_unordered_hours, get_periods_per_hour
+from oocone._internal.scrape_timeseries import (
+    day_string_to_date,
+    discard_unordered_hours,
+    get_periods_per_hour,
+    length_of_day,
+)
 from oocone.auth import Auth
 from oocone.errors import UnexpectedResponse
 from oocone.model import Consumption, ConsumptionType
@@ -66,6 +71,34 @@ async def get_daily_consumption(
         date=date,
         timezone=timezone,
         values_are_integrated=(consumption_type == ConsumptionType.HEAT),
+    )
+
+
+async def get_monthly_consumption(
+    consumption_type: ConsumptionType, area_id: str, date: dt.date, timezone: dt.tzinfo, auth: Auth
+) -> list[Consumption]:
+    logger.debug(
+        "Scraping monthly %s consumption on %s for area with ID %s...",
+        consumption_type,
+        date,
+        area_id,
+    )
+    response, _ = await auth.request(
+        "GET",
+        "php/getMeterDataWithParam.php",
+        params={
+            "AreaId": area_id,
+            "from": date.isoformat(),
+            "intVal": "Monat",
+            "mClass": _CONSUMPTION_CLASSES[consumption_type],
+        },
+    )
+    return _parse_monthly_consumption(
+        monthly_consumption_json=await response.text(),
+        unit=_CONSUMPTION_UNITS[consumption_type],
+        year=date.year,
+        month=date.month,
+        timezone=timezone,
     )
 
 
@@ -137,6 +170,32 @@ def _parse_daily_consumption(
         last_time = time
         last_hour = hour
         last_value = value
+
+    return results
+
+
+def _parse_monthly_consumption(
+    *,
+    monthly_consumption_json: str,
+    unit: str,
+    year: int,
+    month: int,
+    timezone: dt.tzinfo,
+) -> list[Consumption]:
+    results = []
+
+    json_data = json.loads(monthly_consumption_json)
+    values = json_data[0]
+    dates = [day_string_to_date(day_string, month, year) for day_string in json_data[1]]
+
+    for date, value in zip(dates, values, strict=False):
+        consumption = Consumption(
+            start=dt.datetime.combine(date, dt.time(0, 0), tzinfo=timezone),
+            period=length_of_day(date, timezone),
+            value=value,
+            unit=unit,
+        )
+        results.append(consumption)
 
     return results
 
