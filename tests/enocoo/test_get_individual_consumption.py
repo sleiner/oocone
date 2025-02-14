@@ -8,17 +8,25 @@ import pytest
 from oocone import Auth, Enocoo
 from oocone._internal.scrape_consumption import _CONSUMPTION_CLASSES as CONSUMPTION_CLASSES
 from oocone.model import ConsumptionType
-from tests import RESPONSES_DIR, TIMEZONE
+from tests import TIMEZONE
+from tests.conftest import MOCK_API_DATASET_NAMES, MockApiParams
 
 
-def _get_consumption_sum(
-    consumption_type: ConsumptionType, *, date: dt.date, interval: str, compensate_off_by_one: bool
+def _get_consumption_sum(  # noqa: PLR0913
+    consumption_type: ConsumptionType,
+    *,
+    date: dt.date,
+    interval: str,
+    compensate_off_by_one: bool,
+    area_id: str,
+    mock_api_params: MockApiParams,
 ) -> float:
     def enocoo_response(request_date: dt.date) -> list:
         response_path = (
-            RESPONSES_DIR
-            / "getMeterDataWithParam.{consumption}.{date}.{interval}.php".format(  # noqa: UP032
+            mock_api_params.response_data_path
+            / "getMeterDataWithParam.{consumption}.{area_id}.{date}.{interval}.php".format(  # noqa: UP032
                 consumption=CONSUMPTION_CLASSES[consumption_type],
+                area_id=area_id,
                 date=request_date.isoformat(),
                 interval=interval,
             )
@@ -68,6 +76,7 @@ def _get_consumption_sum(
         ConsumptionType.HEAT,
     ],
 )
+@pytest.mark.parametrize("dataset", MOCK_API_DATASET_NAMES)
 @pytest.mark.parametrize(
     "compensate_quirks",
     [
@@ -75,36 +84,51 @@ def _get_consumption_sum(
         pytest.param(True, id="compensated"),
     ],
 )
-async def test_daily(
-    *, date: dt.date, consumption_type: ConsumptionType, compensate_quirks: bool, mock_auth: Auth
+async def test_daily(  # noqa: PLR0913
+    *,
+    date: dt.date,
+    consumption_type: ConsumptionType,
+    compensate_quirks: bool,
+    mock_auth: Auth,
+    mock_api_params: MockApiParams,
+    dataset: str,
 ) -> None:
     """Check that enocoo.get_individual_consumption returns daily data in expected format."""
+    mock_api_params.dataset_name = dataset
     enocoo = Enocoo(mock_auth, TIMEZONE)
 
-    consumption = await enocoo.get_individual_consumption(
-        consumption_type=consumption_type,
-        area_id="123",
-        during=date,
-        interval="day",
-        compensate_off_by_one=compensate_quirks,
-    )
-
-    for hour in {cons.start.hour for cons in consumption}:
-        period_sum = sum(
-            [cons.period for cons in consumption if cons.start.hour == hour], start=dt.timedelta()
-        )
-        assert period_sum == dt.timedelta(hours=1), (
-            f"periods for hour {hour} should add up to one hour"
+    for area_id in await enocoo.get_area_ids():
+        consumption = await enocoo.get_individual_consumption(
+            consumption_type=consumption_type,
+            area_id=area_id,
+            during=date,
+            interval="day",
+            compensate_off_by_one=compensate_quirks,
         )
 
-    expected_sum = _get_consumption_sum(
-        consumption_type, date=date, interval="Tag", compensate_off_by_one=compensate_quirks
-    )
-    actual_sum = sum(cons.value for cons in consumption)
-    assert actual_sum == expected_sum
+        for hour in {cons.start.hour for cons in consumption}:
+            period_sum = sum(
+                [cons.period for cons in consumption if cons.start.hour == hour],
+                start=dt.timedelta(),
+            )
+            assert period_sum == dt.timedelta(hours=1), (
+                f"periods for hour {hour} should add up to one hour"
+            )
+
+        expected_sum = _get_consumption_sum(
+            consumption_type,
+            date=date,
+            interval="Tag",
+            compensate_off_by_one=compensate_quirks,
+            area_id=area_id,
+            mock_api_params=mock_api_params,
+        )
+        actual_sum = sum(cons.value for cons in consumption)
+        assert actual_sum == expected_sum
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("dataset", MOCK_API_DATASET_NAMES)
 @pytest.mark.parametrize(
     "consumption_type",
     [
@@ -114,23 +138,36 @@ async def test_daily(
         ConsumptionType.HEAT,
     ],
 )
-async def test_monthly(*, consumption_type: ConsumptionType, mock_auth: Auth) -> None:
+async def test_monthly(
+    *,
+    consumption_type: ConsumptionType,
+    mock_auth: Auth,
+    mock_api_params: MockApiParams,
+    dataset: str,
+) -> None:
     """Check that enocoo.get_individual_consumption returns monthly data in expected format."""
     date = dt.date(2024, 1, 1)
+    mock_api_params.dataset_name = dataset
     enocoo = Enocoo(mock_auth, TIMEZONE)
 
-    consumption = await enocoo.get_individual_consumption(
-        consumption_type=consumption_type,
-        area_id="123",
-        during=date,
-        interval="month",
-    )
+    for area_id in await enocoo.get_area_ids():
+        consumption = await enocoo.get_individual_consumption(
+            consumption_type=consumption_type,
+            area_id=area_id,
+            during=date,
+            interval="month",
+        )
 
-    expected_sum = _get_consumption_sum(
-        consumption_type, date=date, interval="Monat", compensate_off_by_one=False
-    )
-    actual_sum = sum(cons.value for cons in consumption)
-    assert actual_sum == expected_sum
+        expected_sum = _get_consumption_sum(
+            consumption_type,
+            date=date,
+            interval="Monat",
+            compensate_off_by_one=False,
+            area_id=area_id,
+            mock_api_params=mock_api_params,
+        )
+        actual_sum = sum(cons.value for cons in consumption)
+        assert actual_sum == expected_sum
 
 
 @pytest.mark.asyncio
@@ -143,22 +180,30 @@ async def test_monthly(*, consumption_type: ConsumptionType, mock_auth: Auth) ->
         ConsumptionType.HEAT,
     ],
 )
-async def test_yearly(consumption_type: ConsumptionType, mock_auth: Auth) -> None:
+@pytest.mark.parametrize("dataset", MOCK_API_DATASET_NAMES)
+async def test_yearly(
+    consumption_type: ConsumptionType,
+    mock_auth: Auth,
+    dataset: str,
+    mock_api_params: MockApiParams,
+) -> None:
     """Check that enocoo.get_individual_consumption returns yearly data in expected format."""
+    mock_api_params.dataset_name = dataset
     enocoo = Enocoo(mock_auth, TIMEZONE)
 
-    consumption = await enocoo.get_individual_consumption(
-        consumption_type=consumption_type,
-        area_id="123",
-        during=dt.date(2024, 1, 1),
-        interval="year",
-    )
+    for area_id in await enocoo.get_area_ids():
+        consumption = await enocoo.get_individual_consumption(
+            consumption_type=consumption_type,
+            area_id=area_id,
+            during=dt.date(2024, 1, 1),
+            interval="year",
+        )
 
-    for reading in consumption:
-        match reading.start.month:
-            case 1 | 3 | 5 | 7 | 8 | 10 | 12:
-                assert reading.period == dt.timedelta(days=31)
-            case 2:
-                assert reading.period == dt.timedelta(days=29)
-            case 4 | 6 | 9 | 11:
-                assert reading.period == dt.timedelta(days=30)
+        for reading in consumption:
+            match reading.start.month:
+                case 1 | 3 | 5 | 7 | 8 | 10 | 12:
+                    assert reading.period == dt.timedelta(days=31)
+                case 2:
+                    assert reading.period == dt.timedelta(days=29)
+                case 4 | 6 | 9 | 11:
+                    assert reading.period == dt.timedelta(days=30)

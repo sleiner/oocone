@@ -1,12 +1,14 @@
 """Tests for the oocone.Enocoo.get_meter_table() method."""
 
 import datetime as dt
+from typing import Any
 
 import pytest
 
 from oocone import Auth, Enocoo
 from oocone.model import MeterStatus, Quantity
-from tests import RESPONSES_DIR, TIMEZONE, conftest
+from tests import TIMEZONE, conftest
+from tests.conftest import MockApiParams
 
 TODAY = dt.datetime.now(tz=TIMEZONE).date()
 MIDNIGHT = dt.time(0, 0, 0)
@@ -137,16 +139,25 @@ async def test_fallback_to_previous_day(
     """Check that the method correctly implements fallback to the previous day."""
     original_new_meter_table_body = conftest._new_meter_table_body
 
-    def patched_new_meter_table_body(*, logged_in: bool, date: dt.date) -> bytes:
+    def patched_new_meter_table_body(
+        *, logged_in: bool, date: dt.date, mock_api_params: MockApiParams
+    ) -> bytes:
         if not logged_in:
-            return original_new_meter_table_body(logged_in=logged_in, date=date)
+            return original_new_meter_table_body(
+                logged_in=logged_in, date=date, mock_api_params=mock_api_params
+            )
 
         if date == TODAY:
-            with (RESPONSES_DIR / "newMeterTable.noDataYetForCurrentDay.php").open("rb") as f:
+            with (
+                mock_api_params.response_data_path / "newMeterTable.noDataYetForCurrentDay.php"
+            ).open("rb") as f:
                 return f.read()
         elif date == TODAY - dt.timedelta(days=1):
             return original_new_meter_table_body(
-                logged_in=logged_in, date=last_timestamp.date(), time=last_timestamp.time()
+                logged_in=logged_in,
+                date=last_timestamp.date(),
+                time=last_timestamp.time(),
+                mock_api_params=mock_api_params,
             )
         else:
             msg = f"Date {date} should not be queried in this test"
@@ -161,7 +172,9 @@ async def test_fallback_to_previous_day(
 
 
 @pytest.mark.asyncio
-async def test_fallback_failing(mock_auth: Auth, monkeypatch: pytest.MonkeyPatch) -> None:
+async def test_fallback_failing(
+    mock_auth: Auth, mock_api_params: MockApiParams, monkeypatch: pytest.MonkeyPatch
+) -> None:
     """
     Check that the method does not return data from a previous day.
 
@@ -171,16 +184,18 @@ async def test_fallback_failing(mock_auth: Auth, monkeypatch: pytest.MonkeyPatch
     """
     original_new_meter_table_body = conftest._new_meter_table_body
 
-    def patched_new_meter_table_body(*, logged_in: bool, date: dt.date) -> bytes:
+    def patched_new_meter_table_body(*, logged_in: bool, date: dt.date, **kwargs: Any) -> bytes:
         if not logged_in:
-            return original_new_meter_table_body(logged_in=logged_in, date=date)
+            return original_new_meter_table_body(logged_in=logged_in, date=date, **kwargs)
 
         if date == TODAY:
-            with (RESPONSES_DIR / "newMeterTable.noDataForCurrentDay.php").open("rb") as f:
+            with (
+                mock_api_params.response_data_path / "newMeterTable.noDataForCurrentDay.php"
+            ).open("rb") as f:
                 return f.read()
         elif date == TODAY - dt.timedelta(days=1):
             return original_new_meter_table_body(
-                logged_in=logged_in, date=date, time=dt.time(10, 0, 0)
+                logged_in=logged_in, date=date, time=dt.time(10, 0, 0), **kwargs
             )
         else:
             msg = f"Date {date} should not be queried in this test"
