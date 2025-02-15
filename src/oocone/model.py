@@ -3,6 +3,7 @@
 import datetime as dt
 import enum
 from dataclasses import dataclass
+from functools import cached_property
 from typing import Literal
 
 
@@ -74,5 +75,31 @@ class PhotovoltaicSummary:
     consumption: Quantity
     generation: Quantity
 
-    self_sufficiency: float | None
-    own_consumption: float | None
+    @cached_property
+    def calculated_feed_into_grid(self) -> Quantity:
+        """The (calculated) amount of energy being fed into the electrical grid."""
+        if self.own_consumption is None:
+            # We know: own_consumption = consumption_from_pv / pv_generation
+            # own_consumption can not be calculated if pv_generation is 0.
+            # But if pv_generation is 0, the feed into grid is also 0.
+            return Quantity(value=0.0, unit=self.generation.unit)
+
+        feed_factor = 1.0 - (self.own_consumption.value / 100.0)
+        return Quantity(value=self.generation.value * feed_factor, unit=self.generation.unit)
+
+    @cached_property
+    def calculated_supply_from_grid(self) -> Quantity:
+        """The (calculated) amount of energy being pulled from the electrical grid."""
+        # We know: self_sufficiency = pv_usage / (pv_usage + supply_from_grid)
+        #     and:      consumption = pv_usage + supply_from_grid
+        # =>       supply_from_grid = consumption * (1 - self_sufficiency)
+        if self.self_sufficiency is None:
+            # self_sufficiency is only None when the PV production is 0.
+            # In that case, we pull all power from the grid.
+            return self.consumption
+
+        supply_factor = 1.0 - (self.self_sufficiency.value / 100.0)
+        return Quantity(self.consumption.value * supply_factor, unit=self.consumption.unit)
+
+    self_sufficiency: Quantity | None
+    own_consumption: Quantity | None

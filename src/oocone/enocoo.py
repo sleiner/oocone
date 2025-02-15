@@ -120,13 +120,13 @@ class Enocoo:
         self,
         consumption_type: ConsumptionType,
         during: dt.date,
-        interval: Literal["day", "year"],
+        interval: Literal["day", "month", "year"],
         area_id: str,
         compensate_off_by_one: bool | None = None,
     ) -> list[Consumption]:
         """Return individual consumption statistics for a given meter type."""
         if compensate_off_by_one is None:
-            compensate_off_by_one = True
+            compensate_off_by_one = interval == "day"
 
         if compensate_off_by_one and interval != "day":
             warnings.warn(
@@ -156,12 +156,20 @@ class Enocoo:
         self,
         consumption_type: ConsumptionType,
         during: dt.date,
-        interval: Literal["day", "year"],
+        interval: Literal["day", "month", "year"],
         area_id: str,
     ) -> list[Consumption]:
         match interval:
             case "day":
                 return await scrape_consumption.get_daily_consumption(
+                    consumption_type=consumption_type,
+                    area_id=area_id,
+                    date=during,
+                    timezone=self.timezone,
+                    auth=self.auth,
+                )
+            case "month":
+                return await scrape_consumption.get_monthly_consumption(
                     consumption_type=consumption_type,
                     area_id=area_id,
                     date=during,
@@ -182,12 +190,16 @@ class Enocoo:
     async def get_quarter_photovoltaic_data(
         self,
         during: dt.date,
-        interval: Literal["day", "year"],
+        interval: Literal["day", "month"],
     ) -> list[PhotovoltaicSummary]:
         """Return photovoltaic data for the whole quarter."""
         match interval:
             case "day":
                 return await scrape_photovoltaic.get_daily_photovoltaic_data(
+                    date=during, timezone=self.timezone, auth=self.auth
+                )
+            case "month":
+                return await scrape_photovoltaic.get_monthly_photovoltaic_data(
                     date=during, timezone=self.timezone, auth=self.auth
                 )
             case _:

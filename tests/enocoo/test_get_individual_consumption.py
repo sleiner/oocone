@@ -29,7 +29,7 @@ def _get_consumption_sum(
 
         return json.loads(response)
 
-    if consumption_type == ConsumptionType.HEAT:
+    if consumption_type == ConsumptionType.HEAT and interval == "Tag":
         # Heat readings are integrated, so we need to calculate differences
         raw_readings, hours = enocoo_response(date)[:2]
         readings_current_day = [raw_readings[0], raw_readings[-1] - raw_readings[0]]
@@ -114,17 +114,45 @@ async def test_daily(
         ConsumptionType.HEAT,
     ],
 )
+async def test_monthly(*, consumption_type: ConsumptionType, mock_auth: Auth) -> None:
+    """Check that enocoo.get_individual_consumption returns monthly data in expected format."""
+    date = dt.date(2024, 1, 1)
+    enocoo = Enocoo(mock_auth, TIMEZONE)
+
+    consumption = await enocoo.get_individual_consumption(
+        consumption_type=consumption_type,
+        area_id="123",
+        during=date,
+        interval="month",
+    )
+
+    expected_sum = _get_consumption_sum(
+        consumption_type, date=date, interval="Monat", compensate_off_by_one=False
+    )
+    actual_sum = sum(cons.value for cons in consumption)
+    assert actual_sum == expected_sum
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "consumption_type",
+    [
+        ConsumptionType.ELECTRICITY,
+        ConsumptionType.WATER_COLD,
+        ConsumptionType.WATER_HOT,
+        ConsumptionType.HEAT,
+    ],
+)
 async def test_yearly(consumption_type: ConsumptionType, mock_auth: Auth) -> None:
     """Check that enocoo.get_individual_consumption returns yearly data in expected format."""
     enocoo = Enocoo(mock_auth, TIMEZONE)
 
-    with pytest.warns(UserWarning, match="off by one"):
-        consumption = await enocoo.get_individual_consumption(
-            consumption_type=consumption_type,
-            area_id="123",
-            during=dt.date(2024, 1, 1),
-            interval="year",
-        )
+    consumption = await enocoo.get_individual_consumption(
+        consumption_type=consumption_type,
+        area_id="123",
+        during=dt.date(2024, 1, 1),
+        interval="year",
+    )
 
     for reading in consumption:
         match reading.start.month:
