@@ -92,8 +92,8 @@ def _parse_daily_photovoltaic_data(
             period=period,
             consumption=Quantity(value=float(value[0]), unit=unit),
             generation=Quantity(value=float(value[1]), unit=unit),
-            self_sufficiency=_float_or_none(value[2]),
-            own_consumption=_float_or_none(value[3]),
+            self_sufficiency=_quantity_or_none(value[2], unit="%"),
+            own_consumption=_quantity_or_none(value[3], unit="%"),
         )
         results.append(summary)
 
@@ -123,15 +123,15 @@ def _parse_monthly_photovoltaic_data(
             period=length_of_day(date, timezone=timezone),
             consumption=Quantity(value=float(value[0]), unit=unit),
             generation=Quantity(value=float(value[1]), unit=unit),
-            self_sufficiency=_float_or_none(value[2]),
-            own_consumption=_float_or_none(value[3]),
+            self_sufficiency=_quantity_or_none(value[2], unit="%"),
+            own_consumption=_quantity_or_none(value[3], unit="%"),
         )
         results.append(summary)
 
     return results
 
 
-def _float_or_none(value: Any) -> float | None:
+def _quantity_or_none(value: Any, unit: str) -> Quantity | None:
     if value is None:
         return None
-    return float(value)
+    return Quantity(value=float(value), unit=unit)

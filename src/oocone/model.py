@@ -84,8 +84,8 @@ class PhotovoltaicSummary:
             # But if pv_generation is 0, the feed into grid is also 0.
             return Quantity(value=0.0, unit=self.generation.unit)
 
-        feed_factor = 1.0 - (self.own_consumption / 100.0)
-        return Quantity(value=self.generation * feed_factor, unit=self.generation.unit)
+        feed_factor = 1.0 - (self.own_consumption.value / 100.0)
+        return Quantity(value=self.generation.value * feed_factor, unit=self.generation.unit)
 
     @cached_property
     def calculated_supply_from_grid(self) -> Quantity:
@@ -98,8 +98,8 @@ class PhotovoltaicSummary:
             # In that case, we pull all power from the grid.
             return self.consumption
 
-        supply_factor = 1.0 - (self.self_sufficiency / 100.0)
-        return Quantity(self.consumption * supply_factor, unit=self.consumption.unit)
+        supply_factor = 1.0 - (self.self_sufficiency.value / 100.0)
+        return Quantity(self.consumption.value * supply_factor, unit=self.consumption.unit)
 
-    self_sufficiency: float | None
-    own_consumption: float | None
+    self_sufficiency: Quantity | None
+    own_consumption: Quantity | None

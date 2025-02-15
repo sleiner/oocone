@@ -35,8 +35,8 @@ def _make_summaries(
             dt.timedelta(minutes=duration_minutes),
             consumption=Quantity(consumption_kwh, "kWh"),
             generation=Quantity(generation_kwh, "kWh"),
-            self_sufficiency=self_sufficiency,
-            own_consumption=own_consumption,
+            self_sufficiency=None if self_sufficiency is None else Quantity(self_sufficiency, "%"),
+            own_consumption=None if own_consumption is None else Quantity(own_consumption, "%"),
         )
         result.append(summary)
     return result
@@ -372,7 +372,7 @@ async def test_daily(
                     consumption=Quantity(1772.83, "kWh"),
                     generation=Quantity(138.61, "kWh"),
                     self_sufficiency=None,
-                    own_consumption=99.99,
+                    own_consumption=Quantity(99.99, unit="%"),
                 ),
                 PhotovoltaicSummary(
                     start=dt.datetime(2024, 1, 2, 0, 0, tzinfo=TIMEZONE),
@@ -380,7 +380,7 @@ async def test_daily(
                     consumption=Quantity(1920.71, "kWh"),
                     generation=Quantity(42.1, "kWh"),
                     self_sufficiency=None,
-                    own_consumption=100.0,
+                    own_consumption=Quantity(100.0, unit="%"),
                 ),
                 PhotovoltaicSummary(
                     start=dt.datetime(2024, 1, 3, 0, 0, tzinfo=TIMEZONE),
@@ -388,7 +388,7 @@ async def test_daily(
                     consumption=Quantity(1915.69, "kWh"),
                     generation=Quantity(58.8, "kWh"),
                     self_sufficiency=None,
-                    own_consumption=100.0,
+                    own_consumption=Quantity(100.0, unit="%"),
                 ),
                 PhotovoltaicSummary(
                     start=dt.datetime(2024, 1, 4, 0, 0, tzinfo=TIMEZONE),
@@ -396,7 +396,7 @@ async def test_daily(
                     consumption=Quantity(1842.91, "kWh"),
                     generation=Quantity(114.5, "kWh"),
                     self_sufficiency=None,
-                    own_consumption=100.0,
+                    own_consumption=Quantity(100.0, unit="%"),
                 ),
                 PhotovoltaicSummary(
                     start=dt.datetime(2024, 1, 5, 0, 0, tzinfo=TIMEZONE),
@@ -404,7 +404,7 @@ async def test_daily(
                     consumption=Quantity(1775.11, "kWh"),
                     generation=Quantity(94.49, "kWh"),
                     self_sufficiency=None,
-                    own_consumption=100.0,
+                    own_consumption=Quantity(100.0, unit="%"),
                 ),
                 PhotovoltaicSummary(
                     start=dt.datetime(2024, 1, 6, 0, 0, tzinfo=TIMEZONE),
@@ -412,7 +412,7 @@ async def test_daily(
                     consumption=Quantity(1976.83, "kWh"),
                     generation=Quantity(46.19, "kWh"),
                     self_sufficiency=None,
-                    own_consumption=100.0,
+                    own_consumption=Quantity(100.0, unit="%"),
                 ),
                 PhotovoltaicSummary(
                     start=dt.datetime(2024, 1, 7, 0, 0, tzinfo=TIMEZONE),
@@ -420,7 +420,7 @@ async def test_daily(
                     consumption=Quantity(2017.25, "kWh"),
                     generation=Quantity(37.01, "kWh"),
                     self_sufficiency=None,
-                    own_consumption=100.0,
+                    own_consumption=Quantity(100.0, unit="%"),
                 ),
                 PhotovoltaicSummary(
                     start=dt.datetime(2024, 1, 8, 0, 0, tzinfo=TIMEZONE),
@@ -428,7 +428,7 @@ async def test_daily(
                     consumption=Quantity(2037.78, "kWh"),
                     generation=Quantity(78.56, "kWh"),
                     self_sufficiency=None,
-                    own_consumption=100.0,
+                    own_consumption=Quantity(100.0, unit="%"),
                 ),
                 PhotovoltaicSummary(
                     start=dt.datetime(2024, 1, 9, 0, 0, tzinfo=TIMEZONE),
@@ -436,7 +436,7 @@ async def test_daily(
                     consumption=Quantity(1987.89, "kWh"),
                     generation=Quantity(158.68, "kWh"),
                     self_sufficiency=None,
-                    own_consumption=100.0,
+                    own_consumption=Quantity(100.0, unit="%"),
                 ),
                 PhotovoltaicSummary(
                     start=dt.datetime(2024, 1, 10, 0, 0, tzinfo=TIMEZONE),
@@ -444,7 +444,7 @@ async def test_daily(
                     consumption=Quantity(2147.02, "kWh"),
                     generation=Quantity(163.61, "kWh"),
                     self_sufficiency=None,
-                    own_consumption=100.0,
+                    own_consumption=Quantity(100.0, unit="%"),
                 ),
                 PhotovoltaicSummary(
                     start=dt.datetime(2024, 1, 11, 0, 0, tzinfo=TIMEZONE),
@@ -452,7 +452,7 @@ async def test_daily(
                     consumption=Quantity(2133.37, "kWh"),
                     generation=Quantity(166.32, "kWh"),
                     self_sufficiency=None,
-                    own_consumption=100.0,
+                    own_consumption=Quantity(100.0, unit="%"),
                 ),
                 PhotovoltaicSummary(
                     start=dt.datetime(2024, 1, 12, 0, 0, tzinfo=TIMEZONE),
@@ -460,7 +460,7 @@ async def test_daily(
                     consumption=Quantity(2246.82, "kWh"),
                     generation=Quantity(104.46, "kWh"),
                     self_sufficiency=None,
-                    own_consumption=100.0,
+                    own_consumption=Quantity(100.0, unit="%"),
                 ),
                 PhotovoltaicSummary(
                     start=dt.datetime(2024, 1, 13, 0, 0, tzinfo=TIMEZONE),
@@ -468,7 +468,7 @@ async def test_daily(
                     consumption=Quantity(2209.57, "kWh"),
                     generation=Quantity(34.76, "kWh"),
                     self_sufficiency=None,
-                    own_consumption=100.0,
+                    own_consumption=Quantity(100.0, unit="%"),
                 ),
                 PhotovoltaicSummary(
                     start=dt.datetime(2024, 1, 14, 0, 0, tzinfo=TIMEZONE),
@@ -476,7 +476,7 @@ async def test_daily(
                     consumption=Quantity(2162.66, "kWh"),
                     generation=Quantity(101.57, "kWh"),
                     self_sufficiency=None,
-                    own_consumption=100.0,
+                    own_consumption=Quantity(100.0, unit="%"),
                 ),
                 PhotovoltaicSummary(
                     start=dt.datetime(2024, 1, 15, 0, 0, tzinfo=TIMEZONE),
@@ -484,7 +484,7 @@ async def test_daily(
                     consumption=Quantity(2193.64, "kWh"),
                     generation=Quantity(18.48, "kWh"),
                     self_sufficiency=None,
-                    own_consumption=100.0,
+                    own_consumption=Quantity(100.0, unit="%"),
                 ),
                 PhotovoltaicSummary(
                     start=dt.datetime(2024, 1, 16, 0, 0, tzinfo=TIMEZONE),
@@ -492,7 +492,7 @@ async def test_daily(
                     consumption=Quantity(2144.36, "kWh"),
                     generation=Quantity(136.48, "kWh"),
                     self_sufficiency=None,
-                    own_consumption=100.0,
+                    own_consumption=Quantity(100.0, unit="%"),
                 ),
                 PhotovoltaicSummary(
                     start=dt.datetime(2024, 1, 17, 0, 0, tzinfo=TIMEZONE),
@@ -500,7 +500,7 @@ async def test_daily(
                     consumption=Quantity(2307.8, "kWh"),
                     generation=Quantity(38.75, "kWh"),
                     self_sufficiency=None,
-                    own_consumption=100.0,
+                    own_consumption=Quantity(100.0, unit="%"),
                 ),
                 PhotovoltaicSummary(
                     start=dt.datetime(2024, 1, 18, 0, 0, tzinfo=TIMEZONE),
@@ -508,7 +508,7 @@ async def test_daily(
                     consumption=Quantity(2146.69, "kWh"),
                     generation=Quantity(5.41, "kWh"),
                     self_sufficiency=None,
-                    own_consumption=100.0,
+                    own_consumption=Quantity(100.0, unit="%"),
                 ),
                 PhotovoltaicSummary(
                     start=dt.datetime(2024, 1, 19, 0, 0, tzinfo=TIMEZONE),
@@ -516,7 +516,7 @@ async def test_daily(
                     consumption=Quantity(2280.66, "kWh"),
                     generation=Quantity(5.49, "kWh"),
                     self_sufficiency=None,
-                    own_consumption=100.0,
+                    own_consumption=Quantity(100.0, unit="%"),
                 ),
                 PhotovoltaicSummary(
                     start=dt.datetime(2024, 1, 20, 0, 0, tzinfo=TIMEZONE),
@@ -524,7 +524,7 @@ async def test_daily(
                     consumption=Quantity(2313.58, "kWh"),
                     generation=Quantity(7.08, "kWh"),
                     self_sufficiency=None,
-                    own_consumption=100.0,
+                    own_consumption=Quantity(100.0, unit="%"),
                 ),
                 PhotovoltaicSummary(
                     start=dt.datetime(2024, 1, 21, 0, 0, tzinfo=TIMEZONE),
@@ -532,7 +532,7 @@ async def test_daily(
                     consumption=Quantity(2289.67, "kWh"),
                     generation=Quantity(7.65, "kWh"),
                     self_sufficiency=None,
-                    own_consumption=100.0,
+                    own_consumption=Quantity(100.0, unit="%"),
                 ),
                 PhotovoltaicSummary(
                     start=dt.datetime(2024, 1, 22, 0, 0, tzinfo=TIMEZONE),
@@ -540,7 +540,7 @@ async def test_daily(
                     consumption=Quantity(2221.57, "kWh"),
                     generation=Quantity(70.26, "kWh"),
                     self_sufficiency=None,
-                    own_consumption=100.0,
+                    own_consumption=Quantity(100.0, unit="%"),
                 ),
                 PhotovoltaicSummary(
                     start=dt.datetime(2024, 1, 23, 0, 0, tzinfo=TIMEZONE),
@@ -548,7 +548,7 @@ async def test_daily(
                     consumption=Quantity(2112.49, "kWh"),
                     generation=Quantity(140.0, "kWh"),
                     self_sufficiency=None,
-                    own_consumption=100.0,
+                    own_consumption=Quantity(100.0, unit="%"),
                 ),
                 PhotovoltaicSummary(
                     start=dt.datetime(2024, 1, 24, 0, 0, tzinfo=TIMEZONE),
@@ -556,7 +556,7 @@ async def test_daily(
                     consumption=Quantity(2082.41, "kWh"),
                     generation=Quantity(102.12, "kWh"),
                     self_sufficiency=None,
-                    own_consumption=100.0,
+                    own_consumption=Quantity(100.0, unit="%"),
                 ),
                 PhotovoltaicSummary(
                     start=dt.datetime(2024, 1, 25, 0, 0, tzinfo=TIMEZONE),
@@ -564,7 +564,7 @@ async def test_daily(
                     consumption=Quantity(1969.5, "kWh"),
                     generation=Quantity(154.97, "kWh"),
                     self_sufficiency=None,
-                    own_consumption=100.0,
+                    own_consumption=Quantity(100.0, unit="%"),
                 ),
                 PhotovoltaicSummary(
                     start=dt.datetime(2024, 1, 26, 0, 0, tzinfo=TIMEZONE),
@@ -572,7 +572,7 @@ async def test_daily(
                     consumption=Quantity(2052.11, "kWh"),
                     generation=Quantity(47.83, "kWh"),
                     self_sufficiency=None,
-                    own_consumption=100.0,
+                    own_consumption=Quantity(100.0, unit="%"),
                 ),
                 PhotovoltaicSummary(
                     start=dt.datetime(2024, 1, 27, 0, 0, tzinfo=TIMEZONE),
@@ -580,7 +580,7 @@ async def test_daily(
                     consumption=Quantity(1951.45, "kWh"),
                     generation=Quantity(229.8, "kWh"),
                     self_sufficiency=None,
-                    own_consumption=100.0,
+                    own_consumption=Quantity(100.0, unit="%"),
                 ),
                 PhotovoltaicSummary(
                     start=dt.datetime(2024, 1, 28, 0, 0, tzinfo=TIMEZONE),
@@ -588,7 +588,7 @@ async def test_daily(
                     consumption=Quantity(2039.53, "kWh"),
                     generation=Quantity(233.98, "kWh"),
                     self_sufficiency=None,
-                    own_consumption=100.0,
+                    own_consumption=Quantity(100.0, unit="%"),
                 ),
                 PhotovoltaicSummary(
                     start=dt.datetime(2024, 1, 29, 0, 0, tzinfo=TIMEZONE),
@@ -596,7 +596,7 @@ async def test_daily(
                     consumption=Quantity(1948.37, "kWh"),
                     generation=Quantity(217.47, "kWh"),
                     self_sufficiency=None,
-                    own_consumption=100.0,
+                    own_consumption=Quantity(100.0, unit="%"),
                 ),
                 PhotovoltaicSummary(
                     start=dt.datetime(2024, 1, 30, 0, 0, tzinfo=TIMEZONE),
@@ -604,7 +604,7 @@ async def test_daily(
                     consumption=Quantity(1903.08, "kWh"),
                     generation=Quantity(188.29, "kWh"),
                     self_sufficiency=None,
-                    own_consumption=99.97,
+                    own_consumption=Quantity(99.97, unit="%"),
                 ),
                 PhotovoltaicSummary(
                     start=dt.datetime(2024, 1, 31, 0, 0, tzinfo=TIMEZONE),
@@ -612,7 +612,7 @@ async def test_daily(
                     consumption=Quantity(1988.24, "kWh"),
                     generation=Quantity(104.75, "kWh"),
                     self_sufficiency=None,
-                    own_consumption=100.0,
+                    own_consumption=Quantity(100.0, unit="%"),
                 ),
             ],
             id="January 2024",
