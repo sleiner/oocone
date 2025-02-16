@@ -1,8 +1,11 @@
 """Utilities for scraping HTML tables."""
 
 from dataclasses import dataclass
+from typing import cast
 
-from bs4.element import Tag as HtmlTag
+from bs4 import Tag as HtmlTag
+
+from oocone import errors
 
 DataRow = dict[str, str]
 
@@ -14,7 +17,11 @@ class Table:
 
 
 def parse_table(html_table: HtmlTag) -> Table:
-    rows = html_table.find_all("tr")
+    rows = cast(list[HtmlTag], html_table.find_all("tr"))
+    for row in rows:
+        if not isinstance(row, HtmlTag):
+            msg = f"Expected tr as Tag but found {type(row)}"
+            raise errors.UnexpectedResponse(msg)
 
     columns = _parse_header_row(rows[0])
     data_rows = [_parse_data_row(r, columns) for r in rows[1:]]

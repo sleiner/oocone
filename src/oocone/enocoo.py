@@ -181,6 +181,7 @@ class Enocoo:
                     consumption_type=consumption_type,
                     area_id=area_id,
                     year_number=during.year,
+                    timezone=self.timezone,
                     auth=self.auth,
                 )
             case _:

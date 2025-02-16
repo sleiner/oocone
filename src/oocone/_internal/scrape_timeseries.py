@@ -23,7 +23,7 @@ def discard_unordered_hours[ValueT](
     *,
     description: str,
     stop_after_midnight: bool = True,
-) -> (list[int], list[ValueT]):
+) -> tuple[list[int], list[ValueT]]:
     filtered_hours = []
     filtered_values = []
 
@@ -67,9 +67,7 @@ def day_string_to_date(day_str: str, month: int, year: int) -> dt.date:
 
 
 def length_of_day(day: dt.date, timezone: dt.tzinfo) -> dt.timedelta:
-    midnight = dt.time(0, 0)
     next_day = day + dt.timedelta(days=1)
-
     midnight = dt.datetime.combine(day, dt.time(0, 0), tzinfo=timezone)
     next_midnight = dt.datetime.combine(next_day, dt.time(0, 0), tzinfo=timezone)
 

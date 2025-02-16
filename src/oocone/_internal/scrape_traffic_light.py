@@ -1,9 +1,9 @@
 import logging
-from typing import Any, Literal
+from typing import Any
 
 from oocone import errors
 from oocone.auth import Auth
-from oocone.model import UNKNOWN, Quantity, TrafficLightColor, TrafficLightStatus
+from oocone.model import UNKNOWN, Quantity, TrafficLightColor, TrafficLightStatus, UnknownT
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +26,7 @@ async def get_traffic_light_status(auth: Auth) -> TrafficLightStatus:
     )
 
 
-def _parse_color(response_data: dict) -> TrafficLightColor | Literal[UNKNOWN]:
+def _parse_color(response_data: dict) -> TrafficLightColor | UnknownT:
     try:
         raw = _extract_key_from_response(response_data, "color")
     except KeyError as e:
@@ -44,7 +44,7 @@ def _parse_color(response_data: dict) -> TrafficLightColor | Literal[UNKNOWN]:
     return UNKNOWN
 
 
-def _parse_current_energy_price(response_data: dict) -> Quantity | Literal[UNKNOWN]:
+def _parse_current_energy_price(response_data: dict) -> Quantity | UnknownT:
     try:
         raw = _extract_key_from_response(response_data, "currentEnergyprice")
     except KeyError as e:

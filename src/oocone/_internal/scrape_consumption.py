@@ -38,7 +38,7 @@ async def get_area_ids(auth: Auth) -> list[str]:
     html = await response.text()
 
     try:
-        area_id = re.search(r'var chosenResidenceId = "(\d+)";', html)[1]
+        area_id = re.search(r'var chosenResidenceId = "(\d+)";', html)[1]  # type: ignore[index]
     except Exception as e:
         msg = "Could not scrape area ID from embedded JavaScript code"
         raise UnexpectedResponse(msg) from e
@@ -103,7 +103,11 @@ async def get_monthly_consumption(
 
 
 async def get_yearly_consumption(
-    consumption_type: ConsumptionType, area_id: str, year_number: int, auth: Auth
+    consumption_type: ConsumptionType,
+    area_id: str,
+    year_number: int,
+    timezone: dt.tzinfo,
+    auth: Auth,
 ) -> list[Consumption]:
     logger.debug(
         "Scraping yearly %s consumption in %s for area with ID %s...",
@@ -125,6 +129,7 @@ async def get_yearly_consumption(
         yearly_consumption_json=await response.text(),
         unit=_CONSUMPTION_UNITS[consumption_type],
         year_number=year_number,
+        timezone=timezone,
     )
 
 
@@ -205,6 +210,7 @@ def _parse_yearly_consumption(
     yearly_consumption_json: str,
     unit: str,
     year_number: int,
+    timezone: dt.tzinfo,
 ) -> list[Consumption]:
     results = []
 
@@ -237,7 +243,7 @@ def _parse_yearly_consumption(
             1,
         )
         consumption = Consumption(
-            start=begin_of_month,
+            start=dt.datetime.combine(begin_of_month, dt.time(tzinfo=timezone)),
             period=begin_of_next_month - begin_of_month,
             value=value,
             unit=unit,
