@@ -17,22 +17,21 @@ on:
             - '*.md'
 
 jobs:
-    Testing:
+    nox:
         runs-on: ${{ matrix.os }}
         strategy:
             matrix:
-                python-version: ['3.12', '3.13']
                 os: [ubuntu-latest, macOS-latest, windows-latest]
 
         steps:
-            - uses: actions/checkout@v4
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Set up Python + nox
+              uses: wntrblm/nox@2025.02.09
             - name: Set up PDM
               uses: pdm-project/setup-pdm@main
               with:
-                  python-version: ${{ matrix.python-version }}
+                  python-version: '>=3.12'
                   cache: true
-
-            - name: Install dependencies
-              run: pip install nox
-            - name: Run Tests
-              run: nox -s test-${{ matrix.python-version }}
+            - name: Run nox
+              run: nox
