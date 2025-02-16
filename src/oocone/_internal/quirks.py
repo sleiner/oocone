@@ -4,13 +4,13 @@ import asyncio
 import dataclasses
 import datetime as dt
 import itertools
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
 
 from oocone.model import Consumption
 
 
 async def get_off_by_one_compensated_data(
-    fetch_data: Callable[[dt.date], list[Consumption]],
+    fetch_data: Callable[[dt.date], Awaitable[list[Consumption]]],
     date: dt.date,
     timezone: dt.tzinfo,
 ) -> list[Consumption]:

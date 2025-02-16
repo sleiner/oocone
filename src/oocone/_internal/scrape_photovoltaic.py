@@ -68,7 +68,7 @@ def _parse_daily_photovoltaic_data(
     results = []
 
     json_data = json.loads(data)
-    values = zip(*(json_data[0:4]), strict=True)
+    raw_values = zip(*(json_data[0:4]), strict=True)
     hours = json_data[4]
 
     last_time = dt.datetime(
@@ -76,7 +76,9 @@ def _parse_daily_photovoltaic_data(
     )
     last_hour = None
 
-    hours, values = discard_unordered_hours(hours, values, date, description="photovoltaic data")
+    hours, values = discard_unordered_hours(
+        hours, raw_values, date, description="photovoltaic data"
+    )
     periods_per_hour = get_periods_per_hour(hours)
 
     for hour, value in zip(hours, values, strict=False):

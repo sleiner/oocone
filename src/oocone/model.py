@@ -15,7 +15,8 @@ class TrafficLightColor(enum.StrEnum):
     GREEN = enum.auto()
 
 
-UNKNOWN = "UNKNOWN"
+UnknownT = Literal["UNKNOWN"]
+UNKNOWN: UnknownT = "UNKNOWN"
 
 
 @dataclass(frozen=True)
@@ -30,8 +31,8 @@ class Quantity:
 class TrafficLightStatus:
     """Data returned via the traffic light page."""
 
-    color: TrafficLightColor | Literal[UNKNOWN]
-    current_energy_price: Quantity | Literal[UNKNOWN]
+    color: TrafficLightColor | UnknownT
+    current_energy_price: Quantity | UnknownT
 
 
 @dataclass(frozen=True)

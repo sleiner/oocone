@@ -170,13 +170,13 @@ async def main() -> None:
 
         requests["ownConsumption.php"] = get("php/ownConsumption.php", session=logged_in_session)
 
-        responses = zip(
-            requests.keys(),
-            await asyncio.gather(*[asyncio.create_task(t) for t in requests.values()]),
-            strict=True,
+        responses = dict(
+            zip(
+                requests.keys(),
+                await asyncio.gather(*[asyncio.create_task(t) for t in requests.values()]),
+                strict=True,
+            )
         )
-
-    responses = dict(responses)
 
     for doc in (
         "newMeterTable.php",

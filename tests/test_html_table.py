@@ -3,7 +3,7 @@
 from pathlib import Path
 
 import pytest
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 
 from oocone._internal.html_table import Table, parse_table
 from oocone.enocoo import BEAUTIFULSOUP_PARSER
@@ -11,7 +11,7 @@ from oocone.enocoo import BEAUTIFULSOUP_PARSER
 from . import RESPONSES_DIR
 
 
-def __testdata(data_id: str) -> (str, Table):
+def __testdata(data_id: str) -> tuple[str, Table]:
     if data_id == "synthetic":
         html = """\
             <table class="table table-striped">
@@ -120,6 +120,7 @@ def test_parse_table(data_id: str) -> None:
     """Check that a given HTML string is parsed as a specific expected Table instance."""
     html, expected_table = __testdata(data_id)
     html_table = BeautifulSoup(html, features=BEAUTIFULSOUP_PARSER).find("table")
+    assert isinstance(html_table, Tag)
     parsed_table = parse_table(html_table)
 
     assert parsed_table == expected_table

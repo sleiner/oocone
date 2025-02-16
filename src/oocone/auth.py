@@ -4,11 +4,15 @@ from __future__ import annotations
 
 import logging
 import warnings
+from typing import TYPE_CHECKING
 
 import aiohttp
 from bs4 import BeautifulSoup, MarkupResemblesLocatorWarning
 
 from oocone import errors
+
+if TYPE_CHECKING:
+    from typing import Any
 
 ROUTE_LOGIN = "/signinForm.php?mode=ok"
 BEAUTIFULSOUP_PARSER = "html.parser"
@@ -55,8 +59,8 @@ class Auth:
                 raise errors.AuthenticationFailed
 
     async def request(
-        self, method: str, path: str, *, retry_with_login: bool = True, **kwargs: dict
-    ) -> (aiohttp.ClientResponse, BeautifulSoup):
+        self, method: str, path: str, *, retry_with_login: bool = True, **kwargs: Any
+    ) -> tuple[aiohttp.ClientResponse, BeautifulSoup]:
         """Make a request."""
         try:
             logger.debug("=>       %s %s/%s", method.upper(), self._base_url, path)

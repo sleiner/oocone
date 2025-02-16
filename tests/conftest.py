@@ -38,7 +38,7 @@ async def _signin_form(request: web.Request) -> web.Response:
     return response
 
 
-def _response_from_file(response_path: Path, *, needs_login: bool = True) -> Handler:
+def _response_from_file(response_path: Path | str, *, needs_login: bool = True) -> Handler:
     original_response_path = response_path
 
     async def handler(request: web.Request) -> web.Response:
@@ -93,7 +93,7 @@ async def _post_new_meter_table(request: web.Request) -> web.Response:
     response = web.Response()
     response.body = _new_meter_table_body(
         logged_in=request.cookies.get("logged_in") == "true",
-        date=dt.date.fromisoformat((await request.post())["dateParam"]),
+        date=dt.date.fromisoformat(str((await request.post())["dateParam"])),
     )
     return response
 
@@ -133,7 +133,7 @@ def mock_api(event_loop: AbstractEventLoop, aiohttp_client: AiohttpClient) -> Te
 
 
 @pytest.fixture
-def mock_auth(mock_api: TestClient):  # noqa: ANN201
+def mock_auth(mock_api: TestClient):  # type: ignore[no-untyped-def] # noqa: ANN201
     """Return an Auth instance accessing a mock API."""
     # Importing oocone directly inside conftest.py breaks the typeguard plugin for pytest,
     # so we import it lazily. Because of this, we cannot give a return type hint :(

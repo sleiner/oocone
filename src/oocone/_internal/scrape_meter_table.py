@@ -1,6 +1,8 @@
 import datetime as dt
 import logging
 
+from bs4 import Tag
+
 from oocone import errors
 from oocone._internal.html_table import parse_table
 from oocone.auth import Auth
@@ -17,6 +19,9 @@ async def get_meter_table(date: dt.date, timezone: dt.tzinfo, auth: Auth) -> lis
         data={"dateParam": date.isoformat()},
     )
     html_table = soup.find("table")
+    if not isinstance(html_table, Tag):
+        msg = f"Expected table as Tag but found {type(html_table)}"
+        raise errors.UnexpectedResponse(msg)
     meter_table = parse_table(html_table)
 
     result = []

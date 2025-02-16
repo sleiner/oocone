@@ -38,6 +38,12 @@ test = [
     "typeguard>=4.3.0",
     "tzdata>=2024.2",
 ]
+mypy = [
+    "mypy>=1.15.0",
+    "nox>=2025.2.9",
+    {include-group = "dev"},
+    {include-group = "test"},
+]
 
 [project.urls]
 Repository = "https://github.com/sleiner/oocone"

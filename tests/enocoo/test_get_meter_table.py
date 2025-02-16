@@ -137,12 +137,12 @@ async def test_fallback_to_previous_day(
     """Check that the method correctly implements fallback to the previous day."""
     original_new_meter_table_body = conftest._new_meter_table_body
 
-    def patched_new_meter_table_body(*, logged_in: bool, date: dt.date) -> str:
+    def patched_new_meter_table_body(*, logged_in: bool, date: dt.date) -> bytes:
         if not logged_in:
             return original_new_meter_table_body(logged_in=logged_in, date=date)
 
         if date == TODAY:
-            with (RESPONSES_DIR / "newMeterTable.noDataYetForCurrentDay.php").open() as f:
+            with (RESPONSES_DIR / "newMeterTable.noDataYetForCurrentDay.php").open("rb") as f:
                 return f.read()
         elif date == TODAY - dt.timedelta(days=1):
             return original_new_meter_table_body(
@@ -171,12 +171,12 @@ async def test_fallback_failing(mock_auth: Auth, monkeypatch: pytest.MonkeyPatch
     """
     original_new_meter_table_body = conftest._new_meter_table_body
 
-    def patched_new_meter_table_body(*, logged_in: bool, date: dt.date) -> str:
+    def patched_new_meter_table_body(*, logged_in: bool, date: dt.date) -> bytes:
         if not logged_in:
             return original_new_meter_table_body(logged_in=logged_in, date=date)
 
         if date == TODAY:
-            with (RESPONSES_DIR / "newMeterTable.noDataForCurrentDay.php").open() as f:
+            with (RESPONSES_DIR / "newMeterTable.noDataForCurrentDay.php").open("rb") as f:
                 return f.read()
         elif date == TODAY - dt.timedelta(days=1):
             return original_new_meter_table_body(

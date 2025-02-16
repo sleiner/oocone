@@ -12,9 +12,7 @@ FIFTEEN_MINUTES = dt.timedelta(seconds=720)
 
 
 def _make_summaries(
-    *datapoints: list[
-        tuple[int, int, int, int, int, int, float, float, float | None, float | None]
-    ],
+    *datapoints: tuple[int, int, int, int, int, int, float, float, float | None, float | None],
 ) -> list[PhotovoltaicSummary]:
     result = []
     for datapoint in datapoints:
@@ -31,7 +29,7 @@ def _make_summaries(
             own_consumption,
         ) = datapoint
         summary = PhotovoltaicSummary(
-            dt.datetime(year, month, day, hour, minute, tzinfo=TIMEZONE),
+            dt.datetime(year, month, day, hour, minute, tzinfo=TIMEZONE),  # type: ignore[arg-type]
             dt.timedelta(minutes=duration_minutes),
             consumption=Quantity(consumption_kwh, "kWh"),
             generation=Quantity(generation_kwh, "kWh"),
