@@ -5,11 +5,13 @@ Before executing it, be sure to set these env variables:
     - ENOCOO_BASE_URL
     - ENOCOO_USERNAME
     - ENOCOO_PASSWORD
-    - ENOCOO_AREA_ID
+    - ENOCOO_AREA_IDS
+    - DATASET_NAME
 """
 
 import asyncio
 import datetime as dt
+import logging
 import os
 import re
 from collections import OrderedDict
@@ -21,9 +23,11 @@ from typing import Any, TypeVar
 import aiohttp
 
 PROJECT_DIR = Path(__file__).parent.parent
-RESPONSES_DIR = PROJECT_DIR / "tests" / "data" / "responses"
+RESPONSES_DIR = PROJECT_DIR / "tests" / "data" / "responses" / os.environ["DATASET_NAME"]
 BASE_URL = os.environ["ENOCOO_BASE_URL"].rstrip("/")
+AREA_IDS = os.environ["ENOCOO_AREA_IDS"].split(",")
 NOW = dt.datetime.now()  # noqa: DTZ005
+LOGGER = logging.getLogger()
 
 limit_concurrent_requests = asyncio.Semaphore(3)
 T = TypeVar("T")
@@ -80,9 +84,15 @@ def anonymize(original_html: str) -> str:
     # area ID
     html = re.sub(
         r'var chosenResidenceId = "(\d+)";',
-        r'var chosenResidenceId = "123";',
+        lambda match: f'var chosenResidenceId = "{anonymize_area_id(match.group(1))}";',
         html,
     )
+    for id_ in AREA_IDS:
+        html = html.replace(f'id="{id_}"', f'id="{anonymize_area_id(id_)}"')
+
+    # EV charging spots
+    html = re.sub(r"SP\d{3} TNr:\d{3}", "SP567 TNr:890", html)
+    html = re.sub(r"SP\d{3}", "SP567", html)
 
     # meter numbers
     meter_numbers = count(start=1)
@@ -93,6 +103,7 @@ def anonymize(original_html: str) -> str:
     )
 
     # date and time
+    html = re.sub(r'"\d{2}\.\d{2}\.\d{4}"', '"01.01.2021"', html)
     html = re.sub(r"\d{2}\.\d{2}\.\d{4} \d{2}:\d{2}:\d{2}", "01.01.2021 12:34:56", html)
     html = re.sub(r"\d{2}\.\d{2}\.\d{4} - \d{2}\.\d{2}\.\d{4}", "01.01.2021 - 02.02.2022", html)
 
@@ -106,10 +117,24 @@ def anonymize(original_html: str) -> str:
     return html  # noqa: RET504
 
 
+# matches real area IDs to anonymized ones
+AREA_ID_ANONYMIZATION_TABLE: dict[str, str] = {}
+
+
+def anonymize_area_id(real_id: str) -> str:
+    if real_id not in AREA_ID_ANONYMIZATION_TABLE:
+        anonymized_id = 123 + len(AREA_ID_ANONYMIZATION_TABLE)
+        LOGGER.info("Area ID %s is being anonymized to %s.", real_id, anonymized_id)
+        AREA_ID_ANONYMIZATION_TABLE[real_id] = str(anonymized_id)
+
+    return AREA_ID_ANONYMIZATION_TABLE[real_id]
+
+
 async def main() -> None:
+    logging.basicConfig(level=logging.INFO)
+
     username = os.environ["ENOCOO_USERNAME"]
     password = os.environ["ENOCOO_PASSWORD"]
-    area_id = os.environ["ENOCOO_AREA_ID"]
 
     requests = OrderedDict()
 
@@ -142,17 +167,20 @@ async def main() -> None:
                     )
                 )
 
-                for meter_class in ("Stromverbrauch", "Warmwasser", "Kaltwasser", "Waerme"):
-                    requests[f"getMeterDataWithParam.{meter_class}.{date}.{interval}.php"] = get(
-                        "php/getMeterDataWithParam.php",
-                        params={
-                            "AreaId": area_id,
-                            "from": date,
-                            "intVal": interval,
-                            "mClass": meter_class,
-                        },
-                        session=logged_in_session,
-                    )
+                for area_id in AREA_IDS:
+                    for meter_class in ("Stromverbrauch", "Warmwasser", "Kaltwasser", "Waerme"):
+                        requests[
+                            f"getMeterDataWithParam.{meter_class}.{anonymize_area_id(area_id)}.{date}.{interval}.php"
+                        ] = get(
+                            "php/getMeterDataWithParam.php",
+                            params={
+                                "AreaId": area_id,
+                                "from": date,
+                                "intVal": interval,
+                                "mClass": meter_class,
+                            },
+                            session=logged_in_session,
+                        )
 
         requests["getTrafficLightStatus.php"] = get("php/getTrafficLightStatus.php")
 

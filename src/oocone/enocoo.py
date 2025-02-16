@@ -19,6 +19,7 @@ from oocone._internal import (
 if TYPE_CHECKING:
     from oocone.auth import Auth
     from oocone.model import (
+        Area,
         Consumption,
         ConsumptionType,
         MeterStatus,
@@ -112,9 +113,9 @@ class Enocoo:
 
         return meter_table
 
-    async def get_area_ids(self) -> list[str]:
-        """Get all area IDs available via the dashboard."""
-        return await scrape_consumption.get_area_ids(auth=self.auth)
+    async def get_areas(self) -> list[Area]:
+        """Get all available areas via the dashboard."""
+        return await scrape_consumption.get_areas(auth=self.auth)
 
     async def get_individual_consumption(
         self,

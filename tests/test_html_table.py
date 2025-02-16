@@ -7,8 +7,7 @@ from bs4 import BeautifulSoup, Tag
 
 from oocone._internal.html_table import Table, parse_table
 from oocone.enocoo import BEAUTIFULSOUP_PARSER
-
-from . import RESPONSES_DIR
+from tests.conftest import MockApiParams
 
 
 def __testdata(data_id: str) -> tuple[str, Table]:
@@ -48,7 +47,9 @@ def __testdata(data_id: str) -> tuple[str, Table]:
             ],
         )
     elif data_id == "newMeterTable.php":
-        html = Path.open(RESPONSES_DIR / "newMeterTable.php", encoding="utf-8").read()
+        html = Path.open(
+            MockApiParams().response_data_path / "newMeterTable.php", encoding="utf-8"
+        ).read()
         expected_table = Table(
             columns=["Fläche", "Bezeichnung", "Zähler-Nr.", "Zeitpunkt", "Zählerstand", "Einheit"],
             rows=[
