@@ -20,6 +20,16 @@ UNKNOWN: UnknownT = "UNKNOWN"
 
 
 @dataclass(frozen=True)
+class Area:
+    """An area (or sometimes residence, e.g. an apartment or parking space)."""
+
+    name: str
+    id: str
+    data_available_since: dt.date
+    data_available_until: dt.date
+
+
+@dataclass(frozen=True)
 class Quantity:
     """A representation of a physical quantity, by value and unit."""
 

@@ -40,7 +40,10 @@ def _get_consumption_sum(  # noqa: PLR0913
     if consumption_type == ConsumptionType.HEAT and interval == "Tag":
         # Heat readings are integrated, so we need to calculate differences
         raw_readings, hours = enocoo_response(date)[:2]
-        readings_current_day = [raw_readings[0], raw_readings[-1] - raw_readings[0]]
+        if raw_readings:  # readings are actually available
+            readings_current_day = [raw_readings[0], raw_readings[-1] - raw_readings[0]]
+        else:  # no readings for the current day are available
+            readings_current_day = []
     else:
         readings_current_day, hours = enocoo_response(date)[:2]
 
@@ -97,10 +100,10 @@ async def test_daily(  # noqa: PLR0913
     mock_api_params.dataset_name = dataset
     enocoo = Enocoo(mock_auth, TIMEZONE)
 
-    for area_id in await enocoo.get_area_ids():
+    for area in await enocoo.get_areas():
         consumption = await enocoo.get_individual_consumption(
             consumption_type=consumption_type,
-            area_id=area_id,
+            area_id=area.id,
             during=date,
             interval="day",
             compensate_off_by_one=compensate_quirks,
@@ -120,7 +123,7 @@ async def test_daily(  # noqa: PLR0913
             date=date,
             interval="Tag",
             compensate_off_by_one=compensate_quirks,
-            area_id=area_id,
+            area_id=area.id,
             mock_api_params=mock_api_params,
         )
         actual_sum = sum(cons.value for cons in consumption)
@@ -150,10 +153,10 @@ async def test_monthly(
     mock_api_params.dataset_name = dataset
     enocoo = Enocoo(mock_auth, TIMEZONE)
 
-    for area_id in await enocoo.get_area_ids():
+    for area in await enocoo.get_areas():
         consumption = await enocoo.get_individual_consumption(
             consumption_type=consumption_type,
-            area_id=area_id,
+            area_id=area.id,
             during=date,
             interval="month",
         )
@@ -163,7 +166,7 @@ async def test_monthly(
             date=date,
             interval="Monat",
             compensate_off_by_one=False,
-            area_id=area_id,
+            area_id=area.id,
             mock_api_params=mock_api_params,
         )
         actual_sum = sum(cons.value for cons in consumption)
@@ -191,10 +194,10 @@ async def test_yearly(
     mock_api_params.dataset_name = dataset
     enocoo = Enocoo(mock_auth, TIMEZONE)
 
-    for area_id in await enocoo.get_area_ids():
+    for area in await enocoo.get_areas():
         consumption = await enocoo.get_individual_consumption(
             consumption_type=consumption_type,
-            area_id=area_id,
+            area_id=area.id,
             during=dt.date(2024, 1, 1),
             interval="year",
         )

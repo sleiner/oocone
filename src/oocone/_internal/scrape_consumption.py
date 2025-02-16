@@ -2,6 +2,10 @@ import datetime as dt
 import json
 import logging
 import re
+from typing import cast
+
+from bs4 import BeautifulSoup
+from bs4 import Tag as HtmlTag
 
 from oocone._internal.scrape_timeseries import (
     day_string_to_date,
@@ -11,7 +15,7 @@ from oocone._internal.scrape_timeseries import (
 )
 from oocone.auth import Auth
 from oocone.errors import UnexpectedResponse
-from oocone.model import Consumption, ConsumptionType
+from oocone.model import Area, Consumption, ConsumptionType
 
 logger = logging.getLogger(__name__)
 
@@ -32,18 +36,76 @@ _CONSUMPTION_UNITS = {
 NUM_MONTHS = 12
 
 
-async def get_area_ids(auth: Auth) -> list[str]:
-    logger.debug("Scraping available area IDs...")
-    response, _ = await auth.request("GET", "php/ownConsumption.php")
-    html = await response.text()
+async def get_areas(auth: Auth) -> list[Area]:
+    logger.debug("Scraping areas from consumption page.--")
+    _, soup = await auth.request("GET", "php/ownConsumption.php")
+    return _parse_areas(soup)
 
-    try:
-        area_id = re.search(r'var chosenResidenceId = "(\d+)";', html)[1]  # type: ignore[index]
-    except Exception as e:
-        msg = "Could not scrape area ID from embedded JavaScript code"
-        raise UnexpectedResponse(msg) from e
 
-    return [area_id]
+def _parse_areas(soup: BeautifulSoup) -> list[Area]:
+    areas = []
+    area_selectors = soup.select('label[for="residence"]')
+    if area_selectors:
+        logger.debug(
+            "Found area selection dropdown on consumption page. Parsing the dropdown menu..."
+        )
+        for selector in area_selectors:
+            areas += _parse_areas_for_selector(cast(HtmlTag, selector.parent))
+    else:
+        logger.debug(
+            "Did not find area selection dropdown. Trying to find a reference to a single area..."
+        )
+        areas.append(_parse_single_area(soup))
+
+    return areas
+
+
+def _parse_areas_for_selector(selection_form: HtmlTag) -> list[Area]:
+    areas = []
+    for list_item in selection_form.find_all("li"):
+        area_link = cast(HtmlTag, list_item).find("a")
+        if not isinstance(area_link, HtmlTag):
+            msg = f"Expected <a> Tag in area selector dropdown, got {type(area_link)} instead."
+            raise UnexpectedResponse(msg)
+
+        areas.append(
+            Area(
+                name=area_link.text.strip(),
+                id=str(area_link.attrs["id"]),
+                data_available_since=_parse_german_date(str(area_link.attrs["data-valfrom"])),
+                data_available_until=_parse_german_date(str(area_link.attrs["data-valto"])),
+            )
+        )
+
+    return areas
+
+
+def _parse_single_area(soup: BeautifulSoup) -> Area:
+    if (
+        match1 := re.search(
+            r'var chosenResidenceId = "(\d+)";',
+            "\n\n".join(script.text for script in soup.find_all("script")),
+        )
+    ) and (
+        match2 := re.search(
+            r"Wohneinheit: (H\d+W\d+)"
+            r" \(Zugreifbarer Zeitraum: (\d{2}\.\d{2}\.\d{4}) - (\d{2}\.\d{2}\.\d{4})",
+            soup.text,
+        )
+    ):
+        return Area(
+            id=match1.group(1),
+            name=match2.group(1),
+            data_available_since=_parse_german_date(match2.group(2)),
+            data_available_until=_parse_german_date(match2.group(3)),
+        )
+
+    msg = "Failed to scrape single area ID from page"
+    raise UnexpectedResponse(msg)
+
+
+def _parse_german_date(date_string: str) -> dt.date:
+    return dt.datetime.strptime(date_string, "%d.%m.%Y").date()  # noqa: DTZ007
 
 
 async def get_daily_consumption(
