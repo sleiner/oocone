@@ -25,6 +25,7 @@ jobs:
             - name: Set up PDM
               uses: pdm-project/setup-pdm@main
               with:
+                  python-version: '>=3.12'
                   cache: true
             - name: Build artifacts
               run: |
