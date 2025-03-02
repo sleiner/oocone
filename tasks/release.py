@@ -28,12 +28,12 @@ def bump_version(
         )
         sys.exit(1)
     current_version = parver.Version.parse(get_current_version())
-    if not pre:
-        version_idx = [major, minor, patch].index(True)
-        version = current_version.bump_release(index=version_idx).replace(pre=None, post=None)
-    else:
-        version = current_version.bump_pre(pre)
-    version = version.replace(local=None, dev=None)
+    version_idx = [major, minor, patch].index(True)
+    version = current_version.bump_release(index=version_idx).replace(
+        post=None, local=None, dev=None
+    )
+    if pre:
+        version = version.bump_pre(pre)
     return str(version)
 
 
