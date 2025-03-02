@@ -3,49 +3,15 @@ import subprocess
 import sys
 from pathlib import Path
 
-import parver
-
 PROJECT_DIR = Path(__file__).parent.parent
 
 
-def get_current_version() -> str:
-    cmd = ["git", "describe", "--tags", "--abbrev=0"]
-    return subprocess.check_output(cmd).decode("utf-8").strip()
-
-
-def bump_version(
-    pre: parver._typing.PreTag | None = None,
-    major: bool = False,
-    minor: bool = False,
-    patch: bool = True,
-) -> str:
-    if not any([major, minor, patch]):
-        patch = True
-    if len([v for v in [major, minor, patch] if v]) != 1:
-        print(
-            "Only one option should be provided among (--major, --minor, --patch)",
-            file=sys.stderr,
-        )
-        sys.exit(1)
-    current_version = parver.Version.parse(get_current_version())
-    version_idx = [major, minor, patch].index(True)
-    version = current_version.bump_release(index=version_idx).replace(
-        post=None, local=None, dev=None
-    )
-    if pre:
-        version = version.bump_pre(pre)
-    return str(version)
-
-
 def release(
+    new_version: str,
+    *,
     dry_run: bool = False,
     commit: bool = True,
-    pre: parver._typing.PreTag | None = None,
-    major: bool = False,
-    minor: bool = False,
-    patch: bool = True,
 ) -> None:
-    new_version = bump_version(pre, major, minor, patch)
     print(f"Bump version to: {new_version}")
     if dry_run:
         subprocess.check_call(["towncrier", "build", "--version", new_version, "--draft"])
@@ -70,15 +36,11 @@ def parse_args() -> argparse.Namespace:
         default=True,
         help="Do not commit to Git",
     )
-    group = parser.add_argument_group(title="version part")
-    group.add_argument("--pre", help="Pre tag")
-    group.add_argument("--major", action="store_true", help="Bump major version")
-    group.add_argument("--minor", action="store_true", help="Bump minor version")
-    group.add_argument("--patch", action="store_true", help="Bump patch version")
+    parser.add_argument("version", help="Version number according to PEP 440")
 
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     args = parse_args()
-    release(args.dry_run, args.commit, args.pre, args.major, args.minor, args.patch)
+    release(args.version, dry_run=args.dry_run, commit=args.commit)

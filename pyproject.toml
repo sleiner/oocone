@@ -18,7 +18,6 @@ dependencies = [
 [dependency-groups]
 dev = [
     "towncrier>=24.8.0",
-    "parver>=0.5",
 ]
 doc = [
     "mkdocs>=1.6.1",
