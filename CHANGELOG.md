@@ -1,6 +1,31 @@
 # Changelog
 
 <!-- insertion marker -->
+## [v0.6.0b0](https://github.com/sleiner/oocone/releases/tag/0.6.0b0) (2025-03-02)
+
+### Features & Improvements
+
+- oocone can now fetch data for the quarter's solar panels. ([#35](https://github.com/sleiner/oocone/issues/35))
+- oocone can now discover multiple areas if present in your Enocoo account. ([#41](https://github.com/sleiner/oocone/issues/41))
+
+### Bug Fixes
+
+- `oocone.Enocoo.get_individual_consumption()` with `interval == "year"` used to return `Consumption` objects where the start was a [datetime.date](https://docs.python.org/3/library/datetime.html#date-objects).
+  Now, it returns [datetime.datetime](https://docs.python.org/3/library/datetime.html#datetime-objects), as promised by the type hints. ([#40](https://github.com/sleiner/oocone/issues/40))
+
+### Removals and Deprecations
+
+- All [dataclasses](https://docs.python.org/3/library/dataclasses.html) in the public API are now [frozen](https://docs.python.org/3/library/dataclasses.html#frozen-instances). ([#31](https://github.com/sleiner/oocone/issues/31))
+- Dropped support for Python 3.11. ([#36](https://github.com/sleiner/oocone/issues/36))
+- `enocoo.types` was renamed to `enocoo.model`. ([#37](https://github.com/sleiner/oocone/issues/37))
+- `oocone.Enocoo.get_area_ids()` was removed in favor of `oocone.Enocoo.get_areas()`. ([#41](https://github.com/sleiner/oocone/issues/41))
+
+### Miscellaneous
+
+- oocone is now tested with Python 3.13. ([#36](https://github.com/sleiner/oocone/issues/36))
+- oocone is now type-checked using [mypy](https://mypy.readthedocs.io/). ([#40](https://github.com/sleiner/oocone/issues/40))
+
+
 ## [v0.5.1](https://github.com/sleiner/oocone/releases/tag/0.5.1) (2024-09-25)
 
 ### Bug Fixes
