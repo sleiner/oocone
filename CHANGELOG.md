@@ -1,6 +1,11 @@
 # Changelog
 
 <!-- insertion marker -->
+## [v0.6b1](https://github.com/sleiner/oocone/releases/tag/0.6b1) (2025-03-02)
+
+No significant changes.
+
+
 ## [v0.6.0b0](https://github.com/sleiner/oocone/releases/tag/0.6.0b0) (2025-03-02)
 
 ### Features & Improvements
