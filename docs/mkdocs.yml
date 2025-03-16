@@ -10,6 +10,10 @@ nav:
     - Home:
           - Overview: index.md
           - Changelog: changelog.md
+    - API:
+          - oocone: api/oocone.md
+          - oocone.errors: api/oocone.errors.md
+          - oocone.model: api/oocone.model.md
     - Development:
           - Contributing: contributing.md
           - Code of Conduct: code_of_conduct.md
@@ -37,4 +41,27 @@ markdown_extensions:
           permalink: '#'
 
 plugins:
+    - mkdocstrings:
+          handlers:
+              python:
+                  inventories:
+                      - https://docs.python.org/3/objects.inv
+                      - https://docs.aiohttp.org/en/stable/objects.inv
+                      - http://beautiful-soup-4.readthedocs.io/en/latest/objects.inv
+                  options:
+                      docstring_style: numpy
+                      inherited_members: true
+                      parameter_headings: true
+                      preload_modules: [mkdocstrings]
+                      relative_crossrefs: true
+                      scoped_crossrefs: true
+                      members_order: source
+                      separate_signature: true
+                      show_root_heading: true
+                      show_root_full_path: true
+                      show_signature_annotations: true
+                      show_symbol_type_heading: true
+                      show_symbol_type_toc: true
+                      signature_crossrefs: true
+                      unwrap_annotated: true
     - search
