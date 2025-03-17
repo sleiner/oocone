@@ -17,7 +17,7 @@ class Table:
 
 
 def parse_table(html_table: HtmlTag) -> Table:
-    rows = cast(list[HtmlTag], html_table.find_all("tr"))
+    rows = cast("list[HtmlTag]", html_table.find_all("tr"))
     for row in rows:
         if not isinstance(row, HtmlTag):
             msg = f"Expected tr as Tag but found {type(row)}"
