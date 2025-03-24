@@ -50,7 +50,7 @@ def _parse_areas(soup: BeautifulSoup) -> list[Area]:
             "Found area selection dropdown on consumption page. Parsing the dropdown menu..."
         )
         for selector in area_selectors:
-            areas += _parse_areas_for_selector(cast(HtmlTag, selector.parent))
+            areas += _parse_areas_for_selector(cast("HtmlTag", selector.parent))
     else:
         logger.debug(
             "Did not find area selection dropdown. Trying to find a reference to a single area..."
@@ -63,7 +63,7 @@ def _parse_areas(soup: BeautifulSoup) -> list[Area]:
 def _parse_areas_for_selector(selection_form: HtmlTag) -> list[Area]:
     areas = []
     for list_item in selection_form.find_all("li"):
-        area_link = cast(HtmlTag, list_item).find("a")
+        area_link = cast("HtmlTag", list_item).find("a")
         if not isinstance(area_link, HtmlTag):
             msg = f"Expected <a> Tag in area selector dropdown, got {type(area_link)} instead."
             raise UnexpectedResponse(msg)
