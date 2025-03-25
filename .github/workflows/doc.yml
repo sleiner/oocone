@@ -23,11 +23,11 @@ jobs:
             - name: Build docs
               run: |
                   pdm install --group doc
-                  cd docs && pdm run mkdocs build
+                  pdm run mkdocs build
             - name: Upload artifact
               uses: actions/upload-pages-artifact@v3
               with:
-                  path: ./docs/site
+                  path: ./site
     deploy-doc:
         permissions:
             contents: read

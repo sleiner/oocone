@@ -8,8 +8,8 @@ pip-wheel-metadata/
 .pytest_cache/
 .mypy_cache/
 
-docs/_build/
-docs/site
+# mkdocs
+site
 
 .venv/
 venv/
