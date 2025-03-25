@@ -1,9 +1,7 @@
 """
 oocone.
 
-Unofficial library for interacting with an enocoo energy management system
-:author: Simon Leiner <simon@leiner.me>
-:license: ISC
+Unofficial library for interacting with an enocoo energy management system.
 """
 
 from .auth import Auth

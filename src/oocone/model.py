@@ -42,6 +42,8 @@ class TrafficLightStatus:
     """Data returned via the traffic light page."""
 
     color: TrafficLightColor | UnknownT
+    """Color of the traffic light."""
+
     current_energy_price: Quantity | UnknownT
 
 
@@ -81,10 +83,16 @@ class PhotovoltaicSummary:
     """Information about the quarter's solar generation and power consumption in a given period."""
 
     start: dt.datetime
+    """Start of the measurement period."""
+
     period: dt.timedelta
+    """Duration of the measurement period."""
 
     consumption: Quantity
+    """Energy consumption during the current period."""
+
     generation: Quantity
+    """Energy generation (through PV cells) during the current period."""
 
     @cached_property
     def calculated_feed_into_grid(self) -> Quantity:
@@ -113,4 +121,9 @@ class PhotovoltaicSummary:
         return Quantity(self.consumption.value * supply_factor, unit=self.consumption.unit)
 
     self_sufficiency: Quantity | None
+    """Self-sufficiency (the share of self-generated energy in consumed energy), usually in %."""
+
     own_consumption: Quantity | None
+    """
+    Own consumption (the share of self-consumed energy in self-generated energy), usually in %.
+    """

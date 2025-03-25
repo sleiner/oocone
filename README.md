@@ -7,6 +7,10 @@
 
 Unofficial library for interacting with an enocoo energy management system
 
+## Notable users
+
+-   [ha_enocoo](https://github.com/sleiner/ha_enocoo): enocoo integration for [Home Assistant](https://home-assistant.io)
+
 ## Requirements
 
 oocone requires Python >= 3.12.

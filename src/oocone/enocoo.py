@@ -40,19 +40,21 @@ class Enocoo:
         """
         Initialize the API and store the auth so we can make requests.
 
-        Parameters
-        ----------
-        auth
-            Indicates how to contact the enocoo dashboard, including URL and credentials.
-        timezone
-            The timezone in which the building of the energy management system is located.
-
+        Params:
+            auth: Indicates how to contact the enocoo dashboard, including URL and credentials.
+            timezone: The timezone in which the building of the energy management system is located.
         """
         self.auth = auth
         self.timezone = timezone
 
     async def get_traffic_light_status(self) -> TrafficLightStatus:
-        """Return the status of the energy traffic light."""
+        """
+        Return the status of the energy traffic light.
+
+        Returns:
+            Current status of the energy traffic light.
+
+        """
         return await scrape_traffic_light.get_traffic_light_status(self.auth)
 
     async def get_meter_table(
@@ -63,14 +65,14 @@ class Enocoo:
         """
         Return the status of all individual consumption meters available in the dashboard.
 
-        Parameters
-        ----------
-        date
-            The date for which meter data should be fetched.
-            If left to None: the current day.
-        allow_previous_day_until:
-            If set, data from the previous day might be returned if the timestamp is at least the
-            value of this parameter.
+        Params:
+            date: The date for which meter data should be fetched. If left to None: the current day.
+            allow_previous_day_until: If set, data from the previous day might be returned if the
+                timestamp is at least the value of this parameter.
+
+        Returns:
+            For all individual consumption meters available in the dashboard, their latest status
+                on the given date.
 
         """
         if date is None:
@@ -114,7 +116,13 @@ class Enocoo:
         return meter_table
 
     async def get_areas(self) -> list[Area]:
-        """Get all available areas via the dashboard."""
+        """
+        Get all available areas via the dashboard.
+
+        Returns:
+            A list of all areas for which data can be read from the enocoo dashboard.
+
+        """
         return await scrape_consumption.get_areas(auth=self.auth)
 
     async def get_individual_consumption(
@@ -125,7 +133,28 @@ class Enocoo:
         area_id: str,
         compensate_off_by_one: bool | None = None,
     ) -> list[Consumption]:
-        """Return individual consumption statistics for a given meter type."""
+        """
+        Return individual consumption statistics for a given meter type.
+
+        Params:
+            consumption_type: The kind of resource consumption to fetch data for (e.g. electricity,
+                heat etc.).
+            during: The date for which to fetch consumption data.
+            interval: The length of interval (around ``date``) for which consumption data shall be
+                fetched.
+            area_id: Individual consumption is always tied to a specific area (a list of which you
+                can obtain via [`get_areas()`][oocone.enocoo.Enocoo.get_areas]). You need to give
+                the ID of the area that data shall be fetched for here.
+            compensate_off_by_one: In some cases, the dates for data returned by the enocoo
+                dashboard are off by one time interval. oocone offers the possibility of correcting
+                this client-side. By **not** setting this parameter, this compensation will be
+                activated in all cases where off-by-one errors are known. You can turn this off by
+                setting this parameter to `False`.
+
+        Returns:
+            A list of consumption data points per time interval.
+
+        """
         if compensate_off_by_one is None:
             compensate_off_by_one = interval == "day"
 
@@ -194,7 +223,18 @@ class Enocoo:
         during: dt.date,
         interval: Literal["day", "month"],
     ) -> list[PhotovoltaicSummary]:
-        """Return photovoltaic data for the whole quarter."""
+        """
+        Return photovoltaic data for the whole quarter.
+
+        Params:
+            during: The date for which to fetch consumption data.
+            interval: The length of interval (around ``date``) for which consumption data shall be
+                fetched.
+
+        Returns:
+            A list of (quarter) photovoltaic data points during the given interval.
+
+        """
         match interval:
             case "day":
                 return await scrape_photovoltaic.get_daily_photovoltaic_data(

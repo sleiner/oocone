@@ -1,0 +1,67 @@
+---
+site_name: oocone
+site_description: Unofficial library for interacting with an enocoo energy management system
+site_url: https://sleiner.github.io/oocone
+repo_url: https://github.com/sleiner/oocone
+repo_name: sleiner/oocone
+site_dir: site
+
+nav:
+    - Home:
+          - Overview: index.md
+          - Changelog: changelog.md
+    - API:
+          - oocone: api/oocone.md
+          - oocone.errors: api/oocone.errors.md
+          - oocone.model: api/oocone.model.md
+    - Development:
+          - Contributing: contributing.md
+          - Code of Conduct: code_of_conduct.md
+
+theme:
+    name: material
+    palette:
+        primary: deep purple
+        accent: teal
+    font:
+        text: Open Sans
+        code: Fira Code
+
+markdown_extensions:
+    - admonition
+    - pymdownx.emoji
+    - pymdownx.magiclink
+    - pymdownx.snippets:
+          restrict_base_path: false
+          check_paths: true
+    - pymdownx.superfences
+    - pymdownx.tabbed
+    - pymdownx.tasklist
+    - toc:
+          permalink: '#'
+
+plugins:
+    - mkdocstrings:
+          handlers:
+              python:
+                  inventories:
+                      - https://docs.python.org/3/objects.inv
+                      - https://docs.aiohttp.org/en/stable/objects.inv
+                      - http://beautiful-soup-4.readthedocs.io/en/latest/objects.inv
+                  options:
+                      docstring_style: google
+                      inherited_members: true
+                      parameter_headings: true
+                      preload_modules: [mkdocstrings]
+                      relative_crossrefs: true
+                      scoped_crossrefs: true
+                      members_order: source
+                      separate_signature: true
+                      show_root_heading: true
+                      show_root_full_path: true
+                      show_signature_annotations: true
+                      show_symbol_type_heading: true
+                      show_symbol_type_toc: true
+                      signature_crossrefs: true
+                      unwrap_annotated: true
+    - search
