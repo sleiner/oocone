@@ -34,20 +34,14 @@ class Auth:
         """
         Create a new instance.
 
-        Parameters
-        ----------
-        base_url
-            The URL on which the enocoo dashboard is available, e.g.
-            ``https://ems123.enocoo.com:12345``. This will be used to initialize the
-            [`base_url`][oocone.auth.Auth.base_url] attribute.
-        username
-            The username to use for logging in to the dashboard.
-        password
-            The password to use for logging in to the dashboard.
-        websession
-            Allows customization of the used web session. If unset, a new session will be created
-            internally.
-
+        Params:
+            base_url: The URL on which the enocoo dashboard is available, e.g.
+                ``https://ems123.enocoo.com:12345``. This will be used to initialize the
+                [`base_url`][oocone.auth.Auth.base_url] attribute.
+            username: The username to use for logging in to the dashboard.
+            password: The password to use for logging in to the dashboard.
+            websession: Allows customization of the used web session. If unset, a new session will
+                be created internally.
         """
         self._base_url = base_url.rstrip("/")
         self.__username = username
@@ -86,24 +80,19 @@ class Auth:
         """
         Make a request.
 
-        Parameters
-        ----------
-        method
-            The [HTTP request method](https://en.wikipedia.org/wiki/HTTP#Request_methods) to use,
-            e.g. ``GET`` or ``POST``.
-        path
-            The path of the resource to request, relative to the [`base_ref`][oocone.Auth.__init__]
-        retry_with_login
-            If this option is set and the response indicates that the resource could not be fetched
-            due to not being logged in, the method will log in and retry the request.
-        kwargs
-            Will be passed to [`ClientSession.request()`][aiohttp.ClientSession.request].
+        Params:
+            method: The [HTTP request method](https://en.wikipedia.org/wiki/HTTP#Request_methods) to
+                use, e.g. ``GET`` or ``POST``.
+            path: The path of the resource to request, relative to the
+                [`base_ref`][oocone.Auth.__init__].
+            retry_with_login: If this option is set and the response indicates that the resource
+                could not be fetched due to not being logged in, the method will log in and retry
+                the request.
+            kwargs: Will be passed to [`ClientSession.request()`][aiohttp.ClientSession.request].
 
-        Returns
-        -------
-        tuple[aiohttp.ClientResponse, BeautifulSoup]
-            - [`ClientResponse`][aiohttp.ClientResponse] the raw response
-            - `BeautifulSoup` allows scraping of the response
+        Returns:
+            the raw response
+            allows scraping of the response
 
         """
         try:
