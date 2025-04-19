@@ -38,7 +38,13 @@ NUM_MONTHS = 12
 
 async def get_areas(auth: Auth) -> list[Area]:
     logger.debug("Scraping areas from consumption page.")
-    _, soup = await auth.request("GET", "php/ownConsumption.php")
+    response, soup = await auth.request("GET", "php/ownConsumption.php")
+    logger.debug(
+        "Response for %s:\nHeaders:\n--------\n%s\n\nBody:\n-----\n%s",
+        response.url,
+        response.headers,
+        await response.text(),
+    )
     areas = _parse_areas(soup)
     logger.debug("Found areas: %s", areas)
     return areas
