@@ -1,6 +1,13 @@
 # Changelog
 
 <!-- insertion marker -->
+## [v0.6.1](https://github.com/sleiner/oocone/releases/tag/0.6.1) (2025-05-18)
+
+### Improved Documentation
+
+- API docs are now deployed to the [oocone website](https://sleiner.github.io/oocone/). ([#46](https://github.com/sleiner/oocone/issues/46))
+
+
 ## [v0.6.0](https://github.com/sleiner/oocone/releases/tag/0.6.0) (2025-03-06)
 
 ### Features & Improvements
