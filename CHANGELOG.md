@@ -1,6 +1,13 @@
 # Changelog
 
 <!-- insertion marker -->
+## [v0.6.2](https://github.com/sleiner/oocone/releases/tag/0.6.2) (2025-05-20)
+
+### Bug Fixes
+
+- A typo in a log message inside `Enocoo.get_areas()` is now fixed. ([#50](https://github.com/sleiner/oocone/issues/50))
+
+
 ## [v0.6.1](https://github.com/sleiner/oocone/releases/tag/0.6.1) (2025-05-18)
 
 ### Improved Documentation
