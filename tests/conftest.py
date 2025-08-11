@@ -187,7 +187,7 @@ def mock_auth(mock_api: TestClient):  # type: ignore[no-untyped-def] # noqa: ANN
     """Return an Auth instance accessing a mock API."""
     # Importing oocone directly inside conftest.py breaks the typeguard plugin for pytest,
     # so we import it lazily. Because of this, we cannot give a return type hint :(
-    from oocone import Auth
+    from oocone import Auth  # noqa: PLC0415
 
     return Auth(
         websession=mock_api.session,

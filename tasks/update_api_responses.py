@@ -68,7 +68,7 @@ async def request(make_request: Callable, session: aiohttp.ClientSession | None 
         return await response.text()
 
 
-async def async_id(x: T) -> T:
+async def async_id[T](x: T) -> T:
     return x
 
 
