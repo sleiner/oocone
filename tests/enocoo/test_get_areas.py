@@ -10,8 +10,6 @@ from tests import TIMEZONE
 from tests.conftest import MockApiParams
 
 
-@pytest.mark.asyncio
-# @pytest.mark.parametrize("dataset", MOCK_API_DATASET_NAMES)
 @pytest.mark.parametrize(
     ("dataset", "expected_areas"),
     [

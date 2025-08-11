@@ -61,7 +61,6 @@ def _get_consumption_sum(  # noqa: PLR0913
     return sum(relevant_readings)
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize(
     "date",
     [
@@ -130,7 +129,6 @@ async def test_daily(  # noqa: PLR0913
         assert actual_sum == expected_sum
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize("dataset", MOCK_API_DATASET_NAMES)
 @pytest.mark.parametrize(
     "consumption_type",
@@ -173,7 +171,6 @@ async def test_monthly(
         assert actual_sum == expected_sum
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize(
     "consumption_type",
     [

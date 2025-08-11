@@ -64,7 +64,6 @@ def _expected_meter_table(date: dt.date, time: dt.time | None = None) -> list[Me
     ]
 
 
-@pytest.mark.asyncio
 async def test_without_params(mock_auth: Auth) -> None:
     """Check that the function returns data for the current day when called without parameters."""
     expected = _expected_meter_table(TODAY)
@@ -75,7 +74,6 @@ async def test_without_params(mock_auth: Auth) -> None:
     assert result == expected
 
 
-@pytest.mark.asyncio
 async def test_with_date_param(mock_auth: Auth) -> None:
     """Check that when called with a date param, the function returns data for that day."""
     date = dt.date(2012, 12, 12)
@@ -87,7 +85,6 @@ async def test_with_date_param(mock_auth: Auth) -> None:
     assert result == expected
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("allow_previous_day_until", "last_timestamp", "expected_result"),
     [
@@ -171,7 +168,6 @@ async def test_fallback_to_previous_day(
     assert result == expected_result
 
 
-@pytest.mark.asyncio
 async def test_fallback_failing(
     mock_auth: Auth, mock_api_params: MockApiParams, monkeypatch: pytest.MonkeyPatch
 ) -> None:

@@ -14,6 +14,6 @@ project_description: Unofficial library for interacting with an enocoo energy ma
 project_name: oocone
 python_package_distribution_name: oocone
 python_package_import_name: oocone
-python_package_requires_python: '>=3.12'
+python_package_requires_python: '>=3.13.2'
 repository_name: oocone
 repository_namespace: sleiner

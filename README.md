@@ -13,4 +13,4 @@ Unofficial library for interacting with an enocoo energy management system
 
 ## Requirements
 
-oocone requires Python >= 3.12.
+oocone requires Python >= 3.13.2.

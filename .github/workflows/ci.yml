@@ -28,10 +28,12 @@ jobs:
               uses: actions/checkout@v4
             - name: Set up Python + nox
               uses: wntrblm/nox@2025.05.01
+              with:
+                  python-versions: '3.13'
             - name: Set up PDM
               uses: pdm-project/setup-pdm@main
               with:
-                  python-version: '>=3.12'
+                  python-version: '>=3.13.2'
                   cache: true
             - name: Install dependencies
               run: nox --install-only --verbose

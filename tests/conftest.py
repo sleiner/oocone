@@ -1,18 +1,16 @@
 """Common fixtures and settings for all tests."""
 
 import datetime as dt
-from asyncio import AbstractEventLoop
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 import pytest
 from aiohttp import web
-from aiohttp.test_utils import TestClient
 from aiohttp.typedefs import Handler
 from pytest_aiohttp.plugin import AiohttpClient
 
-from . import TESTS_DIR
+from . import TESTS_DIR, MockApiClient
 
 pytest_plugins = ("pytest_asyncio",)
 
@@ -159,9 +157,7 @@ def _new_meter_table_body(
 
 
 @pytest.fixture
-def mock_api(
-    mock_api_params: MockApiParams, event_loop: AbstractEventLoop, aiohttp_client: AiohttpClient
-) -> TestClient:
+async def mock_api(mock_api_params: MockApiParams, aiohttp_client: AiohttpClient) -> MockApiClient:
     """Return a mock API instance."""
     app = web.Application()
     app[signed_in] = False
@@ -179,11 +175,11 @@ def mock_api(
     app.router.add_get(
         "/php/ownConsumption.php", _response_from_file("ownConsumption.php", params=mock_api_params)
     )
-    return event_loop.run_until_complete(aiohttp_client(app))
+    return await aiohttp_client(app)
 
 
 @pytest.fixture
-def mock_auth(mock_api: TestClient):  # type: ignore[no-untyped-def] # noqa: ANN201
+async def mock_auth(mock_api: MockApiClient):  # type: ignore[no-untyped-def] # noqa: ANN201
     """Return an Auth instance accessing a mock API."""
     # Importing oocone directly inside conftest.py breaks the typeguard plugin for pytest,
     # so we import it lazily. Because of this, we cannot give a return type hint :(
