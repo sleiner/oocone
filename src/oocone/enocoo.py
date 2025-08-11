@@ -128,6 +128,7 @@ class Enocoo:
     async def get_individual_consumption(
         self,
         consumption_type: ConsumptionType,
+        *,
         during: dt.date,
         interval: Literal["day", "month", "year"],
         area_id: str,
