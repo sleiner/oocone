@@ -15,7 +15,7 @@ def _install(session: nox.Session, *, groups: list[str] | None = None) -> None:
     )
 
 
-@nox.session(python=("3.12", "3.13"))
+@nox.session(python=("3.13",))
 def test(session: nox.Session) -> None:
     _install(session, groups=["test"])
     session.run("pytest", "tests/")

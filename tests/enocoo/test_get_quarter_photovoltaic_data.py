@@ -40,7 +40,6 @@ def _make_summaries(
     return result
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("date", "expected"),
     [
@@ -617,7 +616,6 @@ async def test_daily(
         )
     ],
 )
-@pytest.mark.asyncio
 async def test_monthly(
     *, date: dt.date, expected: list[PhotovoltaicSummary], mock_auth: Auth
 ) -> None:

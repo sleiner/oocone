@@ -6,7 +6,7 @@ author_email: simon@leiner.me
 author_fullname: Simon Leiner
 author_username: sleiner
 build_doc: true
-copyright_date: '2024'
+copyright_date: 2024 - 2025
 copyright_holder: Simon Leiner
 copyright_holder_email: simon@leiner.me
 copyright_license: ISC
@@ -14,6 +14,6 @@ project_description: Unofficial library for interacting with an enocoo energy ma
 project_name: oocone
 python_package_distribution_name: oocone
 python_package_import_name: oocone
-python_package_requires_python: '>=3.12'
+python_package_requires_python: '>=3.13.2'
 repository_name: oocone
 repository_namespace: sleiner

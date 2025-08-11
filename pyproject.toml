@@ -4,14 +4,14 @@ description = "Unofficial library for interacting with an enocoo energy manageme
 authors = [{ name = "Simon Leiner", email = "simon@leiner.me" }]
 license = {text = "ISC"}
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.13.2"
 dynamic = ["version"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Programming Language :: Python :: 3",
 ]
 dependencies = [
-    "aiohttp>=3.11.12",
+    "aiohttp>=3.12.15",
     "beautifulsoup4>=4.13.3",
 ]
 
@@ -21,26 +21,26 @@ dev = [
 ]
 doc = [
     "mkdocs>=1.6.1",
-    "mkdocs-material>=9.5.36",
-    "mkdocstrings[python]>=0.29.0",
+    "mkdocs-material>=9.6.16",
+    "mkdocstrings[python]>=0.30.0",
 ]
 test = [
-    "pytest>=8.3.4",
+    "pytest>=8.4.1",
     "pytest-aiohttp>=1.1.0",
-    "pytest-asyncio>=0.25.3",
-    "pytest-cov>=6.0.0",
-    "typeguard>=4.4.1",
-    "tzdata>=2025.1",
-    "pytest>=8.3.3",
-    "pytest-aiohttp>=1.0.5",
-    "pytest-asyncio>=0.24.0",
-    "pytest-cov>=5.0.0",
-    "typeguard>=4.3.0",
-    "tzdata>=2024.2",
+    "pytest-asyncio>=1.1.0",
+    "pytest-cov>=6.2.1",
+    "typeguard>=4.4.4",
+    "tzdata>=2025.2",
+    "pytest>=8.4.1",
+    "pytest-aiohttp>=1.1.0",
+    "pytest-asyncio>=1.1.0",
+    "pytest-cov>=6.2.1",
+    "typeguard>=4.4.4",
+    "tzdata>=2025.2",
 ]
 mypy = [
-    "mypy>=1.15.0",
-    "nox>=2025.2.9",
+    "mypy>=1.17.1",
+    "nox>=2025.5.1",
     {include-group = "dev"},
     {include-group = "test"},
 ]
@@ -70,6 +70,7 @@ lint = "pre-commit run --all-files"
 markers = [
     "mock_api: mark test as using a mock of the enocoo website",
 ]
+asyncio_mode = "auto"
 addopts = """\
     --typeguard-packages=oocone \
     --cov=oocone \
