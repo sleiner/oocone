@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 async def get_meter_table(date: dt.date, timezone: dt.tzinfo, auth: Auth) -> list[MeterStatus]:
     logger.debug("Scraping meter table for %s...", date)
-    response, soup = await auth.request(
+    _, soup = await auth.request(
         "POST",
         "php/newMeterTable.php",
         data={"dateParam": date.isoformat()},
