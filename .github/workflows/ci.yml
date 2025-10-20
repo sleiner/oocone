@@ -27,7 +27,7 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v5
             - name: Set up Python + nox
-              uses: wntrblm/nox@2025.05.01
+              uses: wntrblm/nox@2025.10.16
               with:
                   python-versions: '3.13'
             - name: Set up PDM
