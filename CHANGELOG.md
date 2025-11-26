@@ -1,6 +1,13 @@
 # Changelog
 
 <!-- insertion marker -->
+## [v0.6.4](https://github.com/sleiner/oocone/releases/tag/0.6.4) (2025-11-27)
+
+### Dependencies
+
+- Downgrade minimum [`beautifulsoup4`](https://pypi.org/project/beautifulsoup4/) version to 4.13.3, in accordance with v2025.11.3 of Home Assistant. ([#64](https://github.com/sleiner/oocone/issues/64))
+
+
 ## [v0.6.3](https://github.com/sleiner/oocone/releases/tag/0.6.3) (2025-11-26)
 
 ### Dependencies
