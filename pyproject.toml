@@ -31,12 +31,6 @@ test = [
     "pytest-cov>=6.2.1",
     "typeguard>=4.4.4",
     "tzdata>=2025.2",
-    "pytest>=8.4.1",
-    "pytest-aiohttp>=1.1.0",
-    "pytest-asyncio>=1.1.0",
-    "pytest-cov>=6.2.1",
-    "typeguard>=4.4.4",
-    "tzdata>=2025.2",
 ]
 mypy = [
     "mypy>=1.17.1",
