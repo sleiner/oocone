@@ -1,6 +1,17 @@
 # Changelog
 
 <!-- insertion marker -->
+## [v0.6.3](https://github.com/sleiner/oocone/releases/tag/0.6.3) (2025-11-26)
+
+### Dependencies
+
+- oocone now requires a Python version of at least 3.13.2. ([#53](https://github.com/sleiner/oocone/issues/53))
+
+### Removals and Deprecations
+
+- All parameters to `oocone.Enocoo.get_individual_consumption` are now keyword-only. ([#52](https://github.com/sleiner/oocone/issues/52))
+
+
 ## [v0.6.2](https://github.com/sleiner/oocone/releases/tag/0.6.2) (2025-05-20)
 
 ### Bug Fixes
