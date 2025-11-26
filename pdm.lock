@@ -5,7 +5,7 @@
 groups = ["default", "dev", "doc", "mypy", "test"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:cbdbbf869bd4ff7a4c813e22fcc4daa846a996d425930a8d1c28ea6f01b0bcc0"
+content_hash = "sha256:b164b129bf9b6fcaa1cb1abbb8bc0a60fc9bd34ad74d6f1cf49dde95d8526595"
 
 [[metadata.targets]]
 requires_python = ">=3.13.2"
@@ -522,16 +522,16 @@ files = [
 
 [[package]]
 name = "griffe"
-version = "1.11.1"
-requires_python = ">=3.9"
+version = "1.15.0"
+requires_python = ">=3.10"
 summary = "Signatures for entire Python programs. Extract the structure, the frame, the skeleton of your project, to generate API documentation or find breaking changes in your API."
 groups = ["doc"]
 dependencies = [
     "colorama>=0.4",
 ]
 files = [
-    {file = "griffe-1.11.1-py3-none-any.whl", hash = "sha256:5799cf7c513e4b928cfc6107ee6c4bc4a92e001f07022d97fd8dee2f612b6064"},
-    {file = "griffe-1.11.1.tar.gz", hash = "sha256:d54ffad1ec4da9658901eb5521e9cddcdb7a496604f67d8ae71077f03f549b7e"},
+    {file = "griffe-1.15.0-py3-none-any.whl", hash = "sha256:6f6762661949411031f5fcda9593f586e6ce8340f0ba88921a0f2ef7a81eb9a3"},
+    {file = "griffe-1.15.0.tar.gz", hash = "sha256:7726e3afd6f298fbc3696e67958803e7ac843c1cfe59734b6251a40cdbfb5eea"},
 ]
 
 [[package]]
@@ -774,19 +774,19 @@ files = [
 
 [[package]]
 name = "mkdocstrings-python"
-version = "1.16.12"
-requires_python = ">=3.9"
+version = "1.19.0"
+requires_python = ">=3.10"
 summary = "A Python handler for mkdocstrings."
 groups = ["doc"]
 dependencies = [
-    "griffe>=1.6.2",
+    "griffe>=1.13",
     "mkdocs-autorefs>=1.4",
-    "mkdocstrings>=0.28.3",
+    "mkdocstrings>=0.30",
     "typing-extensions>=4.0; python_version < \"3.11\"",
 ]
 files = [
-    {file = "mkdocstrings_python-1.16.12-py3-none-any.whl", hash = "sha256:22ded3a63b3d823d57457a70ff9860d5a4de9e8b1e482876fc9baabaf6f5f374"},
-    {file = "mkdocstrings_python-1.16.12.tar.gz", hash = "sha256:9b9eaa066e0024342d433e332a41095c4e429937024945fea511afe58f63175d"},
+    {file = "mkdocstrings_python-1.19.0-py3-none-any.whl", hash = "sha256:395c1032af8f005234170575cc0c5d4d20980846623b623b35594281be4a3059"},
+    {file = "mkdocstrings_python-1.19.0.tar.gz", hash = "sha256:917aac66cf121243c11db5b89f66b0ded6c53ec0de5318ff5e22424eb2f2e57c"},
 ]
 
 [[package]]
