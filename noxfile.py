@@ -15,13 +15,13 @@ def _install(session: nox.Session, *, groups: list[str] | None = None) -> None:
     )
 
 
-@nox.session(python=("3.13",))
+@nox.session(python=("3.13", "3.14"))
 def test(session: nox.Session) -> None:
     _install(session, groups=["test"])
     session.run("pytest", "tests/")
 
 
-@nox.session(python=("3.13",))
+@nox.session(python=("3.13", "3.14"))
 def mypy(session: nox.Session) -> None:
     _install(session, groups=["mypy"])
     session.run("mypy", ".")
