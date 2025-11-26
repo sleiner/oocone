@@ -12,7 +12,7 @@ classifiers = [
 ]
 dependencies = [
     "aiohttp>=3.13.2",
-    "beautifulsoup4>=4.14.2",
+    "beautifulsoup4>=4.13.3",
 ]
 
 [dependency-groups]
