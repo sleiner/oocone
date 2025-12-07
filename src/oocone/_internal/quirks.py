@@ -6,14 +6,17 @@ import datetime as dt
 import itertools
 from collections.abc import Awaitable, Callable
 
-from oocone.model import Consumption
+from oocone.model import Consumption, PhotovoltaicSummary
+
+type QuirkyDataType = Consumption | PhotovoltaicSummary
+type FetchCallable[T] = Callable[[dt.date], Awaitable[list[T]]]
 
 
-async def get_off_by_one_compensated_data(
-    fetch_data: Callable[[dt.date], Awaitable[list[Consumption]]],
+async def get_off_by_one_compensated_data[DataT: QuirkyDataType](
+    fetch_data: FetchCallable[DataT],
     date: dt.date,
     timezone: dt.tzinfo,
-) -> list[Consumption]:
+) -> list[DataT]:
     """
     Compensates for an off by one data point bug in the enocoo EMS.
 
@@ -36,7 +39,7 @@ async def get_off_by_one_compensated_data(
     next_day = original_day + dt.timedelta(days=1)
     now = dt.datetime.now(tz=timezone)
 
-    async def fetch_data_omitting_future(date: dt.date) -> list[Consumption]:
+    async def fetch_data_omitting_future(date: dt.date) -> list[DataT]:
         if date > now.date():  # date is in the future, no point in querying enocoo for data
             return []
 
