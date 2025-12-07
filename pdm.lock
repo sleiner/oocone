@@ -5,7 +5,7 @@
 groups = ["default", "dev", "doc", "mypy", "test"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:b164b129bf9b6fcaa1cb1abbb8bc0a60fc9bd34ad74d6f1cf49dde95d8526595"
+content_hash = "sha256:f1287fa4443836c147065947bb33490af5751f5296a2c37a40079e7b4e70d761"
 
 [[metadata.targets]]
 requires_python = ">=3.13.2"
@@ -1276,6 +1276,20 @@ groups = ["default"]
 files = [
     {file = "soupsieve-2.8-py3-none-any.whl", hash = "sha256:0cc76456a30e20f5d7f2e14a98a4ae2ee4e5abdc7c5ea0aafe795f344bc7984c"},
     {file = "soupsieve-2.8.tar.gz", hash = "sha256:e2dd4a40a628cb5f28f6d4b0db8800b8f581b65bb380b97de22ba5ca8d72572f"},
+]
+
+[[package]]
+name = "syrupy"
+version = "5.0.0"
+requires_python = ">=3.10"
+summary = "Pytest Snapshot Test Utility"
+groups = ["mypy", "test"]
+dependencies = [
+    "pytest>=8.0.0",
+]
+files = [
+    {file = "syrupy-5.0.0-py3-none-any.whl", hash = "sha256:c848e1a980ca52a28715cd2d2b4d434db424699c05653bd1158fb31cf56e9546"},
+    {file = "syrupy-5.0.0.tar.gz", hash = "sha256:3282fe963fa5d4d3e47231b16d1d4d0f4523705e8199eeb99a22a1bc9f5942f2"},
 ]
 
 [[package]]
