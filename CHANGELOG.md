@@ -1,6 +1,14 @@
 # Changelog
 
 <!-- insertion marker -->
+## [v0.6.5](https://github.com/sleiner/oocone/releases/tag/0.6.5) (2025-12-07)
+
+### Bug Fixes
+
+- PV data in the enocoo dashboard used to be off by one unit of time (usually 15 minutes).
+  We are now compensating for this. ([#67](https://github.com/sleiner/oocone/issues/67))
+
+
 ## [v0.6.4](https://github.com/sleiner/oocone/releases/tag/0.6.4) (2025-11-27)
 
 ### Dependencies
