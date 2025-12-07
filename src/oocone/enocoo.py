@@ -156,32 +156,19 @@ class Enocoo:
             A list of consumption data points per time interval.
 
         """
-        if compensate_off_by_one is None:
-            compensate_off_by_one = interval == "day"
-
-        if compensate_off_by_one and interval != "day":
-            warnings.warn(
-                "Data points in the enocoo dashboard are off by one. Compensation for this is only"
-                " available when fetching daily consumption statistics.",
-                stacklevel=1,
-            )
-            compensate_off_by_one = False
 
         async def fetch_data(date: dt.date) -> list[Consumption]:
             return await self._get_individual_consumption_uncompensated(
                 consumption_type=consumption_type, during=date, interval=interval, area_id=area_id
             )
 
-        if compensate_off_by_one:
-            result = await quirks.get_off_by_one_compensated_data(
-                fetch_data=fetch_data,
-                date=during,
-                timezone=self.timezone,
-            )
-        else:
-            result = await fetch_data(date=during)
-
-        return result
+        return await self._maybe_compensate_off_by_one(
+            fetch_data,
+            during,
+            interval,
+            compensate_off_by_one=compensate_off_by_one,
+            user_stacklevel=1,
+        )
 
     async def _get_individual_consumption_uncompensated(
         self,
@@ -223,6 +210,8 @@ class Enocoo:
         self,
         during: dt.date,
         interval: Literal["day", "month"],
+        *,
+        compensate_off_by_one: bool | None = None,
     ) -> list[PhotovoltaicSummary]:
         """
         Return photovoltaic data for the whole quarter.
@@ -231,11 +220,33 @@ class Enocoo:
             during: The date for which to fetch consumption data.
             interval: The length of interval (around ``date``) for which consumption data shall be
                 fetched.
+            compensate_off_by_one: In some cases, the dates for data returned by the enocoo
+                dashboard are off by one time interval. oocone offers the possibility of correcting
+                this client-side. By **not** setting this parameter, this compensation will be
+                activated in all cases where off-by-one errors are known. You can turn this off by
+                setting this parameter to `False`.
 
         Returns:
             A list of (quarter) photovoltaic data points during the given interval.
 
         """
+
+        async def fetch_data(date: dt.date) -> list[PhotovoltaicSummary]:
+            return await self._get_quarter_photovoltaic_data_uncompensated(date, interval)
+
+        return await self._maybe_compensate_off_by_one(
+            fetch_data,
+            during,
+            interval,
+            compensate_off_by_one=compensate_off_by_one,
+            user_stacklevel=1,
+        )
+
+    async def _get_quarter_photovoltaic_data_uncompensated(
+        self,
+        during: dt.date,
+        interval: Literal["day", "month"],
+    ) -> list[PhotovoltaicSummary]:
         match interval:
             case "day":
                 return await scrape_photovoltaic.get_daily_photovoltaic_data(
@@ -248,3 +259,34 @@ class Enocoo:
             case _:
                 msg = f'Illegal interval "{interval}"'
                 raise errors.OoconeMisuse(msg)
+
+    async def _maybe_compensate_off_by_one[T: quirks.QuirkyDataType](
+        self,
+        fetch_data: quirks.FetchCallable[T],
+        during: dt.date,
+        interval: Literal["day", "month", "year"],
+        *,
+        compensate_off_by_one: bool | None,
+        user_stacklevel: int,
+    ) -> list[T]:
+        if compensate_off_by_one is None:
+            compensate_off_by_one = interval == "day"
+
+        if compensate_off_by_one and interval != "day":
+            warnings.warn(
+                "Data points in the enocoo dashboard are off by one. Compensation for this is only "
+                "available when fetching daily consumption statistics.",
+                stacklevel=user_stacklevel + 1,
+            )
+            compensate_off_by_one = False
+
+        if compensate_off_by_one:
+            result = await quirks.get_off_by_one_compensated_data(
+                fetch_data=fetch_data,
+                date=during,
+                timezone=self.timezone,
+            )
+        else:
+            result = await fetch_data(during)
+
+        return result
