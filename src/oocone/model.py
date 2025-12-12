@@ -77,6 +77,9 @@ class Consumption:
     value: float
     unit: str
 
+    price: Quantity | None = None
+    """Price of the consumable (per unit of consumption)."""
+
 
 @dataclass(frozen=True)
 class PhotovoltaicSummary:
