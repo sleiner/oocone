@@ -4,6 +4,7 @@ import datetime as dt
 import json
 
 import pytest
+from syrupy.assertion import SnapshotAssertion
 
 from oocone import Auth, Enocoo
 from oocone._internal.scrape_consumption import _CONSUMPTION_CLASSES as CONSUMPTION_CLASSES
@@ -94,6 +95,7 @@ async def test_daily(  # noqa: PLR0913
     mock_auth: Auth,
     mock_api_params: MockApiParams,
     dataset: str,
+    snapshot: SnapshotAssertion,
 ) -> None:
     """Check that enocoo.get_individual_consumption returns daily data in expected format."""
     mock_api_params.dataset_name = dataset
@@ -107,6 +109,7 @@ async def test_daily(  # noqa: PLR0913
             interval="day",
             compensate_off_by_one=compensate_quirks,
         )
+        assert consumption == snapshot
 
         for hour in {cons.start.hour for cons in consumption}:
             period_sum = sum(
@@ -145,6 +148,7 @@ async def test_monthly(
     mock_auth: Auth,
     mock_api_params: MockApiParams,
     dataset: str,
+    snapshot: SnapshotAssertion,
 ) -> None:
     """Check that enocoo.get_individual_consumption returns monthly data in expected format."""
     date = dt.date(2024, 1, 1)
@@ -158,6 +162,7 @@ async def test_monthly(
             during=date,
             interval="month",
         )
+        assert consumption == snapshot
 
         expected_sum = _get_consumption_sum(
             consumption_type,
@@ -186,6 +191,7 @@ async def test_yearly(
     mock_auth: Auth,
     dataset: str,
     mock_api_params: MockApiParams,
+    snapshot: SnapshotAssertion,
 ) -> None:
     """Check that enocoo.get_individual_consumption returns yearly data in expected format."""
     mock_api_params.dataset_name = dataset
@@ -198,6 +204,7 @@ async def test_yearly(
             during=dt.date(2024, 1, 1),
             interval="year",
         )
+        assert consumption == snapshot
 
         for reading in consumption:
             match reading.start.month:

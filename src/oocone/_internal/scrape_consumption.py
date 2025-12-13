@@ -1,3 +1,4 @@
+import dataclasses
 import datetime as dt
 import json
 import logging
@@ -15,7 +16,7 @@ from oocone._internal.scrape_timeseries import (
 )
 from oocone.auth import Auth
 from oocone.errors import UnexpectedResponse
-from oocone.model import Area, Consumption, ConsumptionType
+from oocone.model import Area, Consumption, ConsumptionType, Quantity
 
 logger = logging.getLogger(__name__)
 
@@ -133,6 +134,7 @@ async def get_daily_consumption(
         date=date,
         timezone=timezone,
         values_are_integrated=(consumption_type == ConsumptionType.HEAT),
+        price_currency="€/kWh" if consumption_type == ConsumptionType.ELECTRICITY else None,
     )
 
 
@@ -195,19 +197,24 @@ async def get_yearly_consumption(
     )
 
 
-def _parse_daily_consumption(
+def _parse_daily_consumption(  # noqa: PLR0913
     *,
     daily_consumption_json: str,
     values_are_integrated: bool,
     unit: str,
     date: dt.date,
     timezone: dt.tzinfo,
+    price_currency: str | None = None,
 ) -> list[Consumption]:
     results = []
 
     json_data = json.loads(daily_consumption_json)
     hours = json_data[1]
     values = json_data[0]
+    if price_currency:
+        prices = json_data[2]
+    else:
+        prices = [None] * len(values)
 
     last_time = dt.datetime(
         date.year, date.month, date.day, hour=0, minute=0, second=0, tzinfo=timezone
@@ -215,10 +222,12 @@ def _parse_daily_consumption(
     last_hour = None
     last_value = 0
 
-    hours, values = discard_unordered_hours(hours, values, date, description="consumption")
+    hours, values_and_prices = discard_unordered_hours(
+        hours, zip(values, prices, strict=True), date, description="consumption"
+    )
     periods_per_hour = get_periods_per_hour(hours)
 
-    for hour, value in zip(hours, values, strict=False):
+    for hour, (value, price) in zip(hours, values_and_prices, strict=False):
         period = periods_per_hour[hour]
 
         if hour == last_hour:
@@ -232,6 +241,11 @@ def _parse_daily_consumption(
             consumption_value = float(value)
 
         consumption = Consumption(start=time, period=period, value=consumption_value, unit=unit)
+        if price_currency and price is not None:
+            consumption = dataclasses.replace(
+                consumption, price=Quantity(value=price, unit=price_currency)
+            )
+
         results.append(consumption)
 
         last_time = time
