@@ -1,0 +1,262 @@
+
+<!DOCTYPE html>
+<html lang="de" data-ems-base="">
+  <head>
+    <meta charset="utf-8"> 
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="enocoo | Eigenverbrauch">
+    <meta name="author" content="">
+
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="manifest" href="/site.webmanifest.json">
+	<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+	<meta name="msapplication-TileColor" content="#2d89ef">
+	<meta name="theme-color" content="#ffffff">
+
+    <title>enocoo | Eigenverbrauch</title>
+
+      <link rel="stylesheet" href="/assets/css/emsStyle.css?v=1793399892" integrity="sha384-/eTZSiLh6B0sPi0Jka804LEc/N0dSc2ZHfrI8+uPOKHMPAfCoIO55/YVQWlY3Nx3" nonce="NrLOsMF8mHF0wLe/nWvOaA==" crossorigin="anonymous">
+<link rel="stylesheet" href="/assets/css/spin.css?v=1793399886" integrity="sha384-2FnjDQpEARH415xRc1AQMIQ7Ufruf0W7NnzmtEePrut3fTXa9fAKHzKww6H5Qtqk" nonce="NrLOsMF8mHF0wLe/nWvOaA==" crossorigin="anonymous">
+<link rel="stylesheet" href="/assets/components/bootstrap/css/bootstrap-theme.min.css?v=1793399886" integrity="sha384-aKiJ7IZGW2wZvhTq0K5GyuSBHULJp6MYB/MQsU5tENuWo8lNjMvMJPT9RdeUUCC5" nonce="NrLOsMF8mHF0wLe/nWvOaA==" crossorigin="anonymous">
+<link rel="stylesheet" href="/assets/components/moment-develop/css/bootstrap-datetimepicker.min.css?v=1793399886" integrity="sha384-nZJvUAMsIfdxXE+WUMBaIFH2Xo0VzHHMPaYdAF0KeKvfCdNpzeixo8SnYZLv8UWb" nonce="NrLOsMF8mHF0wLe/nWvOaA==" crossorigin="anonymous">
+<link rel="stylesheet" href="/assets/components/fontawesome-free-6.1.2-web/css/all.css?v=1793399886" integrity="sha384-YpyTtoJRYPPR+0enx4kuicnc82gN+t615COhfnL9l/If67CtBVxyAJrOfmNalnuN" nonce="NrLOsMF8mHF0wLe/nWvOaA==" crossorigin="anonymous">
+<link rel="stylesheet" href="/assets/components/fontawesome-free-6.1.2-web/css/v4-shims.css?v=1793399886" integrity="sha384-rqZxuZVUCpaXNbKxCegHWP1qx9815YmfqS9DBcDkAy3q4aeT60mY7HmWJKPAaRYE" nonce="NrLOsMF8mHF0wLe/nWvOaA==" crossorigin="anonymous">
+<script src="/assets/js/jquery-4.0.0.min.js?v=1793399886" integrity="sha384-5BM+F8cXkeNwalZnLuZA3+S+ZMkSn7OkhqowIIOWmCUlS9cWoWugw9CrENKnOs4h" nonce="NrLOsMF8mHF0wLe/nWvOaA==" crossorigin="anonymous"></script>
+<script src="/assets/components/bootstrap/js/bootstrap.min.js?v=1793399886" integrity="sha384-c0aGVNjSTTB1ZLJQn/ZB13qZRwGgBpaOKuaDvtpR7ZOYDqaLOzmfrAySBW5R6idt" nonce="NrLOsMF8mHF0wLe/nWvOaA==" crossorigin="anonymous"></script>
+<script src="/assets/components/moment-develop/min/moment.min.js?v=1793399886" integrity="sha384-1fCWYWd8PcKjqAjA5cTe8hGO/gGDMwhck29d6y35zdXNYYf1NsmOo/mdsEvyus05" nonce="NrLOsMF8mHF0wLe/nWvOaA==" crossorigin="anonymous"></script>
+<script src="/assets/components/moment-develop/lang/de.js?v=1793399886" integrity="sha384-VY6kKnKRZcANbpT1TqjX/bpj0mQJWOsKm6kUPb09iJXY+AjJamHXpRiBvKdmB+E8" nonce="NrLOsMF8mHF0wLe/nWvOaA==" crossorigin="anonymous"></script>
+<script src="/assets/components/bootstrap-datetimepicker-master/build/js/bootstrap-datetimepicker.min.js?v=1793399886" integrity="sha384-E3DH22IvD810FTOjXyLAVCo3PZNddWWEMQb59IUbyV21cmOPKdyH1pEXYGwFwb2M" nonce="NrLOsMF8mHF0wLe/nWvOaA==" crossorigin="anonymous"></script>
+<script src="/assets/components/bootstrap-datetimepicker-master/src/js/locales/bootstrap-datetimepicker.de.js?v=1793399886" integrity="sha384-4uRJJsoI/KBNVKjUnm1uqnHjVlHK5fr4mHFe9HUsuRrrJ5jPrKa+oXnJtZD/GrmR" nonce="NrLOsMF8mHF0wLe/nWvOaA==" crossorigin="anonymous"></script>
+<script src="/assets/js/date.format.js?v=1793399886" integrity="sha384-0xF330gqSojsBYTvrEP+hjy/o1kPzgZkUAvUqPM4ORpY3AFzJyNL6xoXnhMG1Xmm" nonce="NrLOsMF8mHF0wLe/nWvOaA==" crossorigin="anonymous"></script>
+<script src="/assets/js/RGraph/libraries/RGraph.common.core.js?v=1793399886" integrity="sha384-FiUTuGiCYHv2MFwYqLhCjjR2Im+UEs8vVz+eqtRwls09hUyX5oMw2petOH0h1icX" nonce="NrLOsMF8mHF0wLe/nWvOaA==" crossorigin="anonymous"></script>
+<script src="/assets/js/RGraph/libraries/RGraph.common.dynamic.js?v=1793399886" integrity="sha384-aoqsVbz3lvtw7+ze1MOeIvvOTEv+RBLcFgP2tbObjvvv394bmrUr/YgUJZRvB8eS" nonce="NrLOsMF8mHF0wLe/nWvOaA==" crossorigin="anonymous"></script>
+<script src="/assets/js/RGraph/libraries/RGraph.common.tooltips.js?v=1793399886" integrity="sha384-DhTkeMxXZZeqPaBY5H4SjzkeemS1csN2Y+Ng6YII6x9m7XaTj1Bw7Qq2iXSJtHca" nonce="NrLOsMF8mHF0wLe/nWvOaA==" crossorigin="anonymous"></script>
+<script src="/assets/js/RGraph/libraries/RGraph.line.js?v=1793399886" integrity="sha384-ufpBFRU3G0fQHcaxDOaKP3MWV4dFkZcen/Fa5IbVFA7XozEcdbVl2djfOyDWfd7Y" nonce="NrLOsMF8mHF0wLe/nWvOaA==" crossorigin="anonymous"></script>
+<script src="/assets/js/RGraph/libraries/RGraph.bar.js?v=1793399886" integrity="sha384-MXizrMGLlfn1NiXG5k5ok5F9R7fJBkJtbMPsqJZp/5+oIG4fsRHsiHYOIwznO4Ph" nonce="NrLOsMF8mHF0wLe/nWvOaA==" crossorigin="anonymous"></script>
+<script src="/assets/js/RGraph/libraries/RGraph.common.key.js?v=1793399886" integrity="sha384-i6WYa3+iL4LqrfP0AHVxYcr7UPv/VspR6VfqrAuwFq0e799aJ+wM4DEG8LO8HC/m" nonce="NrLOsMF8mHF0wLe/nWvOaA==" crossorigin="anonymous"></script>
+<script src="/assets/js/Load.js?v=1793399892" integrity="sha384-TD6rDR2WbCv40KaJz+qXRqd/gdlXWetFzg9/nWWD9cOAPSD0OQOh4Ap/hEPOpF1V" nonce="NrLOsMF8mHF0wLe/nWvOaA==" crossorigin="anonymous"></script>
+<script src="/assets/js/chart.js?v=1793399892" integrity="sha384-j6ZJ3yCi+Q1/j1RGCgYaVbPdhcf7qYW/YmjD3Euc+EZ8AXF076fJBaYCuwCZmjyC" nonce="NrLOsMF8mHF0wLe/nWvOaA==" crossorigin="anonymous"></script>
+<script src="/assets/js/spinner_core.js?v=1793399892" integrity="sha384-KFp60E6YMtihFai2qYFrdPaSx7bctE5MutrkckSXfeeXtlkUauVDrHYTI5WjZoU5" nonce="NrLOsMF8mHF0wLe/nWvOaA==" type="module" crossorigin="anonymous"></script>
+	
+	
+
+
+
+<div class="navbar navbar-default navbar-static-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>	
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/start" title="Startseite">
+                <img src="/assets/images/ENOCOO_LOGO_horizontal_36x178.png?v=1793399886" height="36" width="178">
+            </a>
+            <p class="navbar-text hide" id="announcementSign"><a href="/mitteilungen"><img src="/assets/images/AttentionSignSmall.png?v=1793399886" title="Aktuelle Informationen liegen vor" height="36" width="36"></a></p>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+
+
+                <li><a href="/verbrauch" class="active" >Ihr Verbrauch</a></li>                <li><a href="/siedlung" >Siedlung</a></li>
+                <li><a href="/photovoltaik" >PV-Anlage</a></li>
+                <li><a href="/zaehler" >Z&auml;hler</a></li>
+
+                <li><a href="/abrechnungen" >Abrechnungen</a></li>
+                
+                    
+
+                        
+                    
+                
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle  " data-toggle="dropdown">Downloads <span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="/verbrauch-export" >Verbräuche</a></li>
+
+
+                    </ul>
+                </li>
+            
+              
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle  " data-toggle="dropdown">Hilfe <span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="/tipps">Tipps</a></li>
+                        <li><a href="/hilfe">FAQ & Kontakt</a></li>
+                        <li><a href="/mitteilungen">Aktuelle Informationen</a></li>
+                    </ul>
+                </li>
+
+
+            </ul>
+
+
+            <ul class="nav navbar-nav navbar-right">
+		<span>
+		<p class="navbar-text" id="smileys">&nbsp;&nbsp;&nbsp;&nbsp;Strompreis:&nbsp;<img src="/assets/images/SmileysAllGrey.png?v=1793399886" title="Ist der Strom gerade günstig oder teuer?" alt="[Ampel inaktiv]" height="36" width="111"></p>
+		</span>
+
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle " data-toggle="dropdown">[H12W34_01] <span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="/passwort-aendern">Kennwort ändern</a></li>                        <li><a href="/einstellungen">Einstellungen</a></li>                        <li><a href="/abmelden">Abmelden</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        
+    </div>
+</div>
+
+<script src="/assets/js/topMenu.js?v=1793399892" integrity="sha384-+/DiTaLGgjJy6J/lhUYwjpuC2WfVyvNHDQtqm2Od9AiiF62ljUKrdcUcuRZ/KBCG" nonce="NrLOsMF8mHF0wLe/nWvOaA==" crossorigin="anonymous"></script>
+
+	
+
+
+	
+
+
+	</head>
+
+  <body role="document">
+  <div class="container theme-showcase" role="main">
+            <input type="hidden" id="php_chosenResidenceId" value="123">
+
+      
+
+
+	<h1><span class="fa fa-area-chart"></span> Ihre Verbrauchszahlen</h1>
+	<p>Hier finden Sie Ihre Verbrauchszahlen zu Strom, Warm- bzw. Kaltwasser und Heizung. Die Verbräuche liegen im 15 Minuten-Raster vor.</p>	
+	<p>Wählen Sie mittels der Knöpfe die Verbrauchsart und ein Zeitintervall. Bei den Intervallen Tag, Woche, Monat und Jahr kann geblättert werden.</p>
+	<p>Der besseren Darstellung auf Tablets oder Smartphones halber werden Diagramme mit wenigen Werten als Balkendiagramm, solche mit mehr als zwölf Werten als Liniendiagramm dargestellt.<br />
+	Bewegen Sie in den Liniendiagrammen den Mauszeiger auf die Linienpunkte, um deren Werte anzeigen zu lassen.</p>
+	<p><b>Hinweise zu einzelnen Zählerarten:</b>
+	<ol>
+		<li><b>Strom:</b> Zusätzlich wird in der Tagesansicht und den letzten 24 Stunden auch der Strompreis angezeigt, so dass Sie sehen können, ob Ihre Verbräuche in Zeiten günstigen Stroms stattfanden.</li>
+		<li><b>Wärme:</b> Diese Zähler senden ein Signal, wenn die erzeugte Wärmemenge eine Kilowattstunde (kWh) erreicht hat. Die Tages-/24h-Ansicht ist daher anders als bei den anderen Zählern: es werden diese einzelnen Impulse zu einer Kurve mit Treppenform aufaddiert. Zu den Zeitpunkten ansteigender Kurven wurde Energie zur Wärmeerzeugung aufgewendet. Je mehr Treppenstufen auf einander folgen, desto höher war hier die Wärmeerzeugung.</li>
+		<li><b>Wasser:</b> Im Messintervall von 15 Minuten fallen meist nur ein- bis zweistellige Wasserverbräuche in Litern an, daher gibt es hier nur sehr wenige und niedrige Spitzen in den Liniendiagrammen.</li>
+	</ol>
+	</p>
+	
+	<div id="spinner"></div>
+
+		<div class="row">
+			<div class="col-lg-12">
+				<form class="form-inline">
+				
+					<label for="residence">Wohneinheit:</label> <div class="form-group"><div class="input-group"><button type="button" class="btn btn-warning dropdown-toggle" id="residence" data-toggle="dropdown">H12W34 <span class="caret"></span></button><ul class="dropdown-menu" role="menu"><li><a href="#" class="pdm" id="123" data-valFrom="01.01.2021" data-valTo="01.01.2021">H12W34</a></li><li><a href="#" class="pdm" id="124" data-valFrom="01.01.2021" data-valTo="01.01.2021">SP567 TNr:890</a></li></ul></div></div> (Zugreifbarer Zeitraum: <span id="data-valFromTo">01.01.2021 - 02.02.2022</span>)				</form>
+			</div>
+		</div>
+
+
+		
+		<div class="row top-buffer">
+			<div class="col-lg-12">
+				<div class="col-md-5">
+					<form class="form-horizontal" role="form" accept-charset="UTF-8">		
+					   <div class="form-group">
+							<button type="button" class="btn btn-warning mediumKnopf" id="btnStromverbrauch"><span class="glyphicon glyphicon-flash"></span> Strom</button>
+							<button type="button" class="btn btn-warning mediumKnopf" id="btnWarmwasser"><span class="glyphicon glyphicon-fire"></span> Warmwasser</button>
+							<button type="button" class="btn btn-warning mediumKnopf" id="btnKaltwasser"><span class="glyphicon glyphicon-tint"></span> Kaltwasser</button>
+							<button type="button" class="btn btn-warning mediumKnopf" id="btnWaerme"><span class="fa fa-fire"></span> Wärme</button>
+					   </div>
+					</form>
+				</div>
+
+				<div class="col-md-7 text-right">
+					<form class="form-horizontal" role="form" accept-charset="UTF-8">		
+					   <div class="form-group">
+							<button type="button" class="btn btn-warning periodenKnopf lineChart detailsPossible" id="btnLetzte24h">Letzte 24 h</button>		
+							<button type="button" class="btn btn-warning periodenKnopf lineChart dayChooser detailsPossible" id="btnTag">Tag</button>
+							<button type="button" class="btn btn-warning periodenKnopf barChart" id="btnLetzte7Tage">Letzte 7 Tage</button>
+							<button type="button" class="btn btn-warning periodenKnopf barChart dayChooser" id="btnWoche">Woche</button>
+							<button type="button" class="btn btn-warning periodenKnopf lineChart dayChooser" id="btnMonat">Monat</button>
+							<button type="button" class="btn btn-warning periodenKnopf barChart dayChooser" id="btnJahr">Jahr</button>
+
+
+
+					   </div>
+					</form>
+				</div>
+			</div>
+		</div>
+	
+		<div class="row">
+
+			<div class="col-lg-offset-4 col-lg-3 col-md-offset-3 col-md-6 col-sm-offset-2 col-sm-8 col-xs-12 text-center">
+				<form class="form-dayChooser" role="form" accept-charset="UTF-8"> 
+					<div class="input-group">
+						<span class="input-group-btn">
+							<button type="button" id="PreviousBtn" class="btn btn-sm" title="Zurück blättern">
+							  <span class="glyphicon glyphicon-backward"></span>
+							</button>
+						</span>
+
+						<div class="input-group date" id="DateTimePicker" data-date-format="dd. DD.MM.YYYY">
+							<input type="text" class="form-control" title="Datum eintragen" autofocus>
+							<span class="input-group-addon" title="Kalender öffnen. Klick auf den Monatsnamen &#10;zum schnellen Jahres-Monatswechsel"><span class="glyphicon glyphicon-calendar"></span>
+							</span>
+						</div>
+						<span class="input-group-btn">
+							<button type="button" id="NextBtn" class="btn btn-sm" title="Vorwärts blättern">
+							  <span class="glyphicon glyphicon-forward"></span>
+							</button>
+						</span>
+					</div>
+					
+					<div id="Infofeld2"></div>	
+				</form>
+			</div>
+			<div class="col-lg-5">
+			</div>
+		</div>
+		
+
+		<div class="col-lg-6 col-lg-offset-3">
+			<div class="alert alert-danger text-center top-buffer hide" role="alert" id="Infofeld"></div>
+		</div>
+
+
+		<div class="row ">
+			<div class="col-lg-12">
+				<div class="text-center" id="loadingGif"></div>
+				<canvas id="cvs" width="1140" height="400">[Keine Canvas Unterstützung: das Diagramm kann in Ihrem Browser nicht angezeigt werden!]</canvas>
+			</div>
+		</div>
+
+		<div id="HinweisStrom"> 
+			<h4>Hinweise:</h4>
+			<p>Der Strompreis ist innerhalb des Monats ein kalkulierter Strompreis, d.h. nicht der reale Strompreis. Werden im Folgemonat der Bezugspreis und eventuelle andere Komponenten der Stromrechnung im System eingepflegt, werden die kalkulierten Strompreise durch die tatsächlichen Werte ersetzt.</p>
+		</div>
+
+		<span id="detailView">
+			<h3>Detailansicht:</h3>
+			<p>Klicken Sie im oberen Diagramm auf einen Zeitpunkt, um sich in der Detailansicht die detaillierten Messwerte im Bereich zweier Stunden anzeigen zu lassen.</p>
+		</span>
+		
+
+		<div class="col-lg-6 col-lg-offset-3">
+			<div class="alert alert-danger text-center top-buffer hide" role="alert" id="InfofeldDetail"></div>
+		</div>
+
+		<div class="row ">
+			<div class="col-lg-12">
+				<div class="text-center" id="loadingGif"></div>
+				<canvas id="cvsDetail" width="1140" height="400">[Keine Canvas Unterstützung: das Diagramm kann in Ihrem Browser nicht angezeigt werden!]</canvas>
+			</div>
+		</div>
+
+	</div> 
+
+
+
+
+  </body>
+</html>

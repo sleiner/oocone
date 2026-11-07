@@ -39,7 +39,7 @@ NUM_MONTHS = 12
 
 async def get_areas(auth: Auth) -> list[Area]:
     logger.debug("Scraping areas from consumption page...")
-    _, soup = await auth.request("GET", "php/ownConsumption.php")
+    _, soup = await auth.request("GET", "verbrauch")
     return _parse_areas(soup)
 
 
@@ -83,19 +83,18 @@ def _parse_areas_for_selector(selection_form: HtmlTag) -> list[Area]:
 
 def _parse_single_area(soup: BeautifulSoup) -> Area:
     if (
-        match1 := re.search(
-            r'var chosenResidenceId = "(\d+)";',
-            "\n\n".join(script.text for script in soup.find_all("script")),
-        )
-    ) and (
-        match2 := re.search(
-            r"Wohneinheit: (H\d+W\d+)"
-            r" \(Zugreifbarer Zeitraum: (\d{2}\.\d{2}\.\d{4}) - (\d{2}\.\d{2}\.\d{4})",
-            soup.text,
+        (chosen_id_node := soup.find(id="php_chosenResidenceId"))
+        and (area_id := str(chosen_id_node.attrs.get("value")))
+        and (
+            match2 := re.search(
+                r"Wohneinheit: (H\d+W\d+)"
+                r" \(Zugreifbarer Zeitraum: (\d{2}\.\d{2}\.\d{4}) - (\d{2}\.\d{2}\.\d{4})",
+                soup.text,
+            )
         )
     ):
         return Area(
-            id=match1.group(1),
+            id=area_id,
             name=match2.group(1),
             data_available_since=_parse_german_date(match2.group(2)),
             data_available_until=_parse_german_date(match2.group(3)),
@@ -120,7 +119,7 @@ async def get_daily_consumption(
     )
     response, _ = await auth.request(
         "GET",
-        "php/getMeterDataWithParam.php",
+        "api/zaehlerdaten",
         params={
             "AreaId": area_id,
             "from": date.isoformat(),
@@ -149,7 +148,7 @@ async def get_monthly_consumption(
     )
     response, _ = await auth.request(
         "GET",
-        "php/getMeterDataWithParam.php",
+        "api/zaehlerdaten",
         params={
             "AreaId": area_id,
             "from": date.isoformat(),
@@ -181,7 +180,7 @@ async def get_yearly_consumption(
     )
     response, _ = await auth.request(
         "GET",
-        "php/getMeterDataWithParam.php",
+        "api/zaehlerdaten",
         params={
             "AreaId": area_id,
             "from": f"{year_number}-01-01",

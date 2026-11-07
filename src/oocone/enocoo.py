@@ -27,7 +27,7 @@ if TYPE_CHECKING:
         TrafficLightStatus,
     )
 
-ROUTE_LOGIN = "/signinForm.php?mode=ok"
+ROUTE_LOGIN = "/anmelden?mode=ok"
 BEAUTIFULSOUP_PARSER = "html.parser"
 
 logger = logging.getLogger(__name__)

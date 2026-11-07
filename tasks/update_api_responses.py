@@ -52,9 +52,16 @@ async def post(path: str, data: Any = None, *, session: aiohttp.ClientSession | 
 async def post_login(
     username: str, password: str, *, session: aiohttp.ClientSession | None = None
 ) -> str:
+    login_page = await get("anmelden", session=session)
+    csrf_indication = re.search(r"name=\"csrf_token\" value=\"([\w\d]+)\"", login_page)
+    if not csrf_indication:
+        msg = "Failed to identify CSRF token"
+        raise RuntimeError(msg)
+    csrf_token = csrf_indication.group(1)
+
     return await post(
-        path="signinForm.php?mode=ok",
-        data={"user": username, "passwort": password},
+        path="anmelden?mode=ok",
+        data={"user": username, "passwort": password, "csrf_token": csrf_token},
         session=session,
     )
 
@@ -83,8 +90,8 @@ def anonymize(original_html: str) -> str:
 
     # area ID
     html = re.sub(
-        r'var chosenResidenceId = "(\d+)";',
-        lambda match: f'var chosenResidenceId = "{anonymize_area_id(match.group(1))}";',
+        r'id="php_chosenResidenceId" value="(\d+)"',
+        lambda match: f'id="php_chosenResidenceId" value="{anonymize_area_id(match.group(1))}"',
         html,
     )
     for id_ in AREA_IDS:
@@ -139,8 +146,9 @@ async def main() -> None:
     requests = OrderedDict()
 
     async with aiohttp.ClientSession() as logged_in_session:
-        requests["signinForm.failure.php"] = post_login("incorrect", "incorrect")
-        requests["signinForm.success.php"] = async_id(
+        requests["anmelden.failure.html"] = post_login("incorrect", "incorrect")
+        requests["anmelden.html"] = get("anmelden", session=logged_in_session)
+        requests["anmelden.success.html"] = async_id(
             await post_login(username, password, session=logged_in_session)
         )
 
@@ -155,24 +163,22 @@ async def main() -> None:
                 "2024-03-31",  # change from winter time to daylight savings time
                 "2024-04-01",  # ... and the next day
             ):
-                requests[f"getPVDataDetails.GesamtverbrauchUndErzeugung.{date}.{interval}.php"] = (
-                    get(
-                        "php/getPVDataDetails.php",
-                        params={
-                            "from": date,
-                            "intVal": interval,
-                            "diagType": "GesamtverbrauchUndErzeugung",
-                        },
-                        session=logged_in_session,
-                    )
+                requests[f"pv-details.GesamtverbrauchUndErzeugung.{date}.{interval}.json"] = get(
+                    "api/pv-details",
+                    params={
+                        "from": date,
+                        "intVal": interval,
+                        "diagType": "GesamtverbrauchUndErzeugung",
+                    },
+                    session=logged_in_session,
                 )
 
                 for area_id in AREA_IDS:
                     for meter_class in ("Stromverbrauch", "Warmwasser", "Kaltwasser", "Waerme"):
                         requests[
-                            f"getMeterDataWithParam.{meter_class}.{anonymize_area_id(area_id)}.{date}.{interval}.php"
+                            f"zaehlerdaten.{meter_class}.{anonymize_area_id(area_id)}.{date}.{interval}.json"
                         ] = get(
-                            "php/getMeterDataWithParam.php",
+                            "api/zaehlerdaten",
                             params={
                                 "AreaId": area_id,
                                 "from": date,
@@ -182,21 +188,21 @@ async def main() -> None:
                             session=logged_in_session,
                         )
 
-        requests["getTrafficLightStatus.php"] = get("php/getTrafficLightStatus.php")
+        requests["ampel.json"] = get("api/ampel", session=logged_in_session)
 
-        requests["newMeterTable.php"] = get("php/newMeterTable.php", session=logged_in_session)
-        requests["newMeterTable.noDataForCurrentDay.php"] = post(
-            "php/newMeterTable.php", data={"dateParam": "2000-01-01"}, session=logged_in_session
+        requests["zaehlertabelle.html"] = post("api/zaehlertabelle", session=logged_in_session)
+        requests["zaehlertabelle.noDataForCurrentDay.html"] = post(
+            "api/zaehlertabelle", data={"dateParam": "2000-01-01"}, session=logged_in_session
         )
         if NOW.time() < dt.time(hour=0, minute=30):
-            requests["newMeterTable.noDataYetForCurrentDay.php"] = post(
-                "php/newMeterTable.php",
+            requests["zaehlertabelle.noDataYetForCurrentDay.html"] = post(
+                "api/zaehlertabelle",
                 data={"dateParam": NOW.date().isoformat()},
                 session=logged_in_session,
             )
-        requests["newMeterTable.notLoggedIn.php"] = get("php/newMeterTable.php")
+        requests["zaehlertabelle.notLoggedIn.html"] = get("api/zaehlertabelle")
 
-        requests["ownConsumption.php"] = get("php/ownConsumption.php", session=logged_in_session)
+        requests["verbrauch.html"] = get("verbrauch", session=logged_in_session)
 
         responses = dict(
             zip(
@@ -207,9 +213,9 @@ async def main() -> None:
         )
 
     for doc in (
-        "newMeterTable.php",
-        "ownConsumption.php",
-        "newMeterTable.noDataYetForCurrentDay.php",
+        "zaehlertabelle.html",
+        "verbrauch.html",
+        "zaehlertabelle.noDataYetForCurrentDay.html",
     ):
         if doc in responses:
             responses[doc] = anonymize(responses[doc])

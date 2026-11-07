@@ -46,9 +46,9 @@ def __testdata(data_id: str) -> tuple[str, Table]:
                 },
             ],
         )
-    elif data_id == "newMeterTable.php":
+    elif data_id == "zaehlertabelle.html":
         html = Path.open(
-            MockApiParams().response_data_path / "newMeterTable.php", encoding="utf-8"
+            MockApiParams().response_data_path / "zaehlertabelle.html", encoding="utf-8"
         ).read()
         expected_table = Table(
             columns=["Fläche", "Bezeichnung", "Zähler-Nr.", "Zeitpunkt", "Zählerstand", "Einheit"],
@@ -114,7 +114,7 @@ def __testdata(data_id: str) -> tuple[str, Table]:
     "data_id",
     [
         "synthetic",
-        "newMeterTable.php",
+        "zaehlertabelle.html",
     ],
 )
 def test_parse_table(data_id: str) -> None:

@@ -14,7 +14,8 @@ from oocone import errors
 if TYPE_CHECKING:
     from typing import Any
 
-ROUTE_LOGIN = "/signinForm.php?mode=ok"
+ROUTE_LOGIN_START = "anmelden"
+ROUTE_LOGIN_FINISH = f"{ROUTE_LOGIN_START}?mode=ok"
 BEAUTIFULSOUP_PARSER = "html.parser"
 
 logger = logging.getLogger(__name__)
@@ -56,7 +57,7 @@ class Auth:
 
     @staticmethod
     def _response_indicates_not_logged_in(response: BeautifulSoup) -> bool:
-        if response.title is not None and "abgemeldet" in response.title.text.lower():
+        if response.find("a", string="Zur Anmeldung"):
             return True
         if response.find("input", {"type": "password"}) is not None:  # noqa: SIM103
             return True
@@ -64,18 +65,43 @@ class Auth:
         return False
 
     async def _login(self) -> None:
-        async with self._session.post(
-            self._base_url + ROUTE_LOGIN,
-            data={"user": self.__username, "passwort": self.__password},
-        ) as response:
-            response_text = await response.text()
+        data = {
+            "user": self.__username,
+            "passwort": self.__password,
+        }
+        try:
+            csrf_token = await self._csrf_token()
+            data["csrf_token"] = csrf_token
+        except errors.UnexpectedResponse:
+            logger.warning("Failed to find CSRF token; omitting it on login")
 
-            soup = BeautifulSoup(response_text, features=BEAUTIFULSOUP_PARSER)
-            if self._response_indicates_not_logged_in(soup):
-                raise errors.AuthenticationFailed
+        await self.request(
+            "POST",
+            ROUTE_LOGIN_FINISH,
+            data=data,
+            retry_with_login=False,
+        )
+
+    async def _csrf_token(self) -> str:
+        _, soup = await self.request(
+            "GET", ROUTE_LOGIN_START, accept_not_logged_in=True, retry_with_login=False
+        )
+        if (csrf_input := soup.find("input", attrs={"name": "csrf_token"})) and (
+            token := csrf_input.attrs.get("value")
+        ):
+            return str(token)
+
+        msg = "Failed to extract CSRF token"
+        raise errors.UnexpectedResponse(msg)
 
     async def request(
-        self, method: str, path: str, *, retry_with_login: bool = True, **kwargs: Any
+        self,
+        method: str,
+        path: str,
+        *,
+        accept_not_logged_in: bool = False,
+        retry_with_login: bool = True,
+        **kwargs: Any,
     ) -> tuple[aiohttp.ClientResponse, BeautifulSoup]:
         """
         Make a request.
@@ -108,7 +134,7 @@ class Auth:
         logger.debug("<= (%s) %s %s/%s", response.status, method.upper(), self._base_url, path)
         soup = BeautifulSoup(await response.text(), BEAUTIFULSOUP_PARSER)
 
-        if self._response_indicates_not_logged_in(soup):
+        if not accept_not_logged_in and self._response_indicates_not_logged_in(soup):
             if retry_with_login:
                 await self._login()
                 return await self.request(method, path, retry_with_login=False, **kwargs)
