@@ -1,6 +1,13 @@
 # Changelog
 
 <!-- insertion marker -->
+## [v0.7.1](https://github.com/sleiner/oocone/releases/tag/0.7.1) (2026-11-08)
+
+### Bug Fixes
+
+- Fix missing results for energy traffic light, due to `oocone` not recognizing the "not-logged-in" message at `/api/ampel` ([#83](https://github.com/sleiner/oocone/issues/83))
+
+
 ## [v0.7.0](https://github.com/sleiner/oocone/releases/tag/0.7.0) (2026-11-08)
 
 ### Features & Improvements
