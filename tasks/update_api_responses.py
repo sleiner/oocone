@@ -188,6 +188,7 @@ async def main() -> None:
                             session=logged_in_session,
                         )
 
+        requests["ampel.notLoggedIn.json"] = get("api/ampel")
         requests["ampel.json"] = get("api/ampel", session=logged_in_session)
 
         requests["zaehlertabelle.html"] = post("api/zaehlertabelle", session=logged_in_session)
