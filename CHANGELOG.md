@@ -1,6 +1,17 @@
 # Changelog
 
 <!-- insertion marker -->
+## [v0.7.0](https://github.com/sleiner/oocone/releases/tag/0.7.0) (2026-11-08)
+
+### Features & Improvements
+
+- Return estimated prices if available in the dashboard. ([#69](https://github.com/sleiner/oocone/issues/69))
+
+### Bug Fixes
+
+- Restore compatibility with latest enocoo deployment. ([#82](https://github.com/sleiner/oocone/issues/82))
+
+
 ## [v0.6.5](https://github.com/sleiner/oocone/releases/tag/0.6.5) (2025-12-07)
 
 ### Bug Fixes
