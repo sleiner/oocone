@@ -83,13 +83,18 @@ def _expected_csrf_token(response_data_path: Path) -> str:
 
 
 def _response_from_file(
-    response_path: Path | str, *, needs_login: bool = True, params: MockApiParams
+    response_path: Path | str,
+    *,
+    needs_login: bool = True,
+    params: MockApiParams,
+    response_path_not_logged_in: Path | str | None = None,
 ) -> Handler:
     original_response_path = response_path
 
     async def handler(request: web.Request) -> web.Response:
         if needs_login and request.cookies.get("logged_in") != "true":
-            response_path = params.response_data_path / "zaehlertabelle.notLoggedIn.html"
+            response_file = response_path_not_logged_in or "zaehlertabelle.notLoggedIn.html"
+            response_path = params.response_data_path / response_file
         else:
             response_path = params.response_data_path / original_response_path
 
@@ -185,7 +190,11 @@ async def mock_api(mock_api_params: MockApiParams, aiohttp_client: AiohttpClient
     )
     app.router.add_get(
         "/api/ampel",
-        _response_from_file("ampel.json", params=mock_api_params),
+        _response_from_file(
+            "ampel.json",
+            params=mock_api_params,
+            response_path_not_logged_in="ampel.notLoggedIn.json",
+        ),
     )
     app.router.add_get("/api/zaehlerdaten", _get_meter_data_with_param(mock_api_params))
     app.router.add_get("/api/pv-details", _get_pv_data_details(mock_api_params))

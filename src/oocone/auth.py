@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import logging
 import warnings
 from typing import TYPE_CHECKING
@@ -57,9 +58,20 @@ class Auth:
 
     @staticmethod
     def _response_indicates_not_logged_in(response: BeautifulSoup) -> bool:
+        # Redirect to login
         if response.find("a", string="Zur Anmeldung"):
             return True
-        if response.find("input", {"type": "password"}) is not None:  # noqa: SIM103
+
+        # Login page
+        if response.find("input", {"type": "password"}) is not None:
+            return True
+
+        # JSON error (e.g. /api/ampel)
+        try:
+            response_json = json.loads(str(response))
+        except json.JSONDecodeError:
+            response_json = None
+        if response_json == {"error": "Nicht angemeldet"}:  # noqa: SIM103
             return True
 
         return False
