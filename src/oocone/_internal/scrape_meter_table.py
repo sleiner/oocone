@@ -15,7 +15,7 @@ async def get_meter_table(date: dt.date, timezone: dt.tzinfo, auth: Auth) -> lis
     logger.debug("Scraping meter table for %s...", date)
     _, soup = await auth.request(
         "POST",
-        "php/newMeterTable.php",
+        "api/zaehlertabelle",
         data={"dateParam": date.isoformat()},
     )
     html_table = soup.find("table")

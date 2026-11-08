@@ -25,7 +25,7 @@ def _get_consumption_sum(  # noqa: PLR0913
     def enocoo_response(request_date: dt.date) -> list:
         response_path = (
             mock_api_params.response_data_path
-            / "getMeterDataWithParam.{consumption}.{area_id}.{date}.{interval}.php".format(  # noqa: UP032
+            / "zaehlerdaten.{consumption}.{area_id}.{date}.{interval}.json".format(  # noqa: UP032
                 consumption=CONSUMPTION_CLASSES[consumption_type],
                 area_id=area_id,
                 date=request_date.isoformat(),

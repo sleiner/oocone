@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 async def get_traffic_light_status(auth: Auth) -> TrafficLightStatus:
     """Return the status of the energy traffic light."""
     logger.debug("Scraping current traffic light status...")
-    response, _ = await auth.request("GET", "php/getTrafficLightStatus.php")
+    response, _ = await auth.request("GET", "api/ampel")
 
     try:
         # We parse the response as JSON, even though the Content-Type header might indicate

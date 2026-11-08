@@ -15,7 +15,7 @@ from tests.conftest import MockApiParams
 async def test_happy_path(
     dataset: str, snapshot: SnapshotAssertion, mock_auth: Auth, mock_api_params: MockApiParams
 ) -> None:
-    """Check that enocoo.get_areas returns the areas as indicated in ownConsumption.php."""
+    """Check that enocoo.get_areas returns the areas as indicated in /verbrauch."""
     mock_api_params.dataset_name = dataset
     enocoo = Enocoo(mock_auth, TIMEZONE)
 

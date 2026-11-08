@@ -1,7 +1,9 @@
 """Common fixtures and settings for all tests."""
 
 import datetime as dt
+import re
 from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -44,7 +46,7 @@ def mock_api_params() -> MockApiParams:
 
 def _signin_form(mock_api_params: MockApiParams) -> Handler:
     async def handler(request: web.Request) -> web.Response:
-        response_path = mock_api_params.response_data_path / "signinForm.failure.php"
+        response_path = mock_api_params.response_data_path / "anmelden.failure.html"
         response = web.Response()
 
         if request.method == "POST":
@@ -53,8 +55,11 @@ def _signin_form(mock_api_params: MockApiParams) -> Handler:
             password = data.get("passwort")
             credentials_correct = username == "correct" and password == "correct"  # noqa: S105
 
-            if credentials_correct and request.query.get("mode") == "ok":
-                response_path = mock_api_params.response_data_path / "signinForm.success.php"
+            csrf_token = data.get("csrf_token")
+            csrf_correct = csrf_token == _expected_csrf_token(mock_api_params.response_data_path)
+
+            if credentials_correct and csrf_correct and request.query.get("mode") == "ok":
+                response_path = mock_api_params.response_data_path / "anmelden.success.html"
                 response.set_cookie("logged_in", "true")
 
         with Path.open(response_path, "rb") as f:
@@ -65,6 +70,18 @@ def _signin_form(mock_api_params: MockApiParams) -> Handler:
     return handler
 
 
+@lru_cache
+def _expected_csrf_token(response_data_path: Path) -> str:
+    page_containing_token_path = response_data_path / "anmelden.html"
+    with Path.open(page_containing_token_path, "rt") as f:
+        page_src = f.read()
+    csrf_indication = re.search(r"name=\"csrf_token\" value=\"([\w\d]+)\"", page_src)
+    if csrf_indication is None:
+        msg = f'Could not extract CSRF token from "{page_containing_token_path}"'
+        raise RuntimeError(msg)
+    return csrf_indication.group(1)
+
+
 def _response_from_file(
     response_path: Path | str, *, needs_login: bool = True, params: MockApiParams
 ) -> Handler:
@@ -72,7 +89,7 @@ def _response_from_file(
 
     async def handler(request: web.Request) -> web.Response:
         if needs_login and request.cookies.get("logged_in") != "true":
-            response_path = params.response_data_path / "newMeterTable.notLoggedIn.php"
+            response_path = params.response_data_path / "zaehlertabelle.notLoggedIn.html"
         else:
             response_path = params.response_data_path / original_response_path
 
@@ -88,12 +105,12 @@ def _response_from_file(
 def _get_meter_data_with_param(mock_api_params: MockApiParams) -> Handler:
     async def handler(request: web.Request) -> web.Response:
         if request.cookies.get("logged_in") != "true":
-            response_path = mock_api_params.response_data_path / "newMeterTable.notLoggedIn.php"
+            response_path = mock_api_params.response_data_path / "zaehlertabelle.notLoggedIn.html"
         else:
             q = request.query
             response_path = (
                 mock_api_params.response_data_path
-                / f"getMeterDataWithParam.{q['mClass']}.{q['AreaId']}.{q['from']}.{q['intVal']}.php"
+                / f"zaehlerdaten.{q['mClass']}.{q['AreaId']}.{q['from']}.{q['intVal']}.json"
             )
 
         response = web.Response()
@@ -108,12 +125,12 @@ def _get_meter_data_with_param(mock_api_params: MockApiParams) -> Handler:
 def _get_pv_data_details(mock_api_params: MockApiParams) -> Handler:
     async def handler(request: web.Request) -> web.Response:
         if request.cookies.get("logged_in") != "true":
-            response_path = mock_api_params.response_data_path / "newMeterTable.notLoggedIn.php"
+            response_path = mock_api_params.response_data_path / "zaehlertabelle.notLoggedIn.html"
         else:
             q = request.query
             response_path = (
                 mock_api_params.response_data_path
-                / f"getPVDataDetails.GesamtverbrauchUndErzeugung.{q['from']}.{q['intVal']}.php"
+                / f"pv-details.GesamtverbrauchUndErzeugung.{q['from']}.{q['intVal']}.json"
             )
 
         response = web.Response()
@@ -142,9 +159,9 @@ def _new_meter_table_body(
     *, mock_api_params: MockApiParams, logged_in: bool, date: dt.date, time: dt.time | None = None
 ) -> bytes:
     if not logged_in:
-        response_path = mock_api_params.response_data_path / "newMeterTable.notLoggedIn.php"
+        response_path = mock_api_params.response_data_path / "zaehlertabelle.notLoggedIn.html"
     else:
-        response_path = mock_api_params.response_data_path / "newMeterTable.php"
+        response_path = mock_api_params.response_data_path / "zaehlertabelle.html"
 
     with Path.open(response_path, "rb") as f:
         body = f.read()
@@ -162,19 +179,18 @@ async def mock_api(mock_api_params: MockApiParams, aiohttp_client: AiohttpClient
     app = web.Application()
     app[signed_in] = False
 
-    app.router.add_post("/signinForm.php", _signin_form(mock_api_params))
+    app.router.add_post("/anmelden", _signin_form(mock_api_params))
     app.router.add_get(
-        "/php/getTrafficLightStatus.php",
-        _response_from_file("getTrafficLightStatus.php", params=mock_api_params, needs_login=False),
+        "/anmelden", _response_from_file("anmelden.html", params=mock_api_params, needs_login=False)
     )
     app.router.add_get(
-        "/php/getMeterDataWithParam.php", _get_meter_data_with_param(mock_api_params)
+        "/api/ampel",
+        _response_from_file("ampel.json", params=mock_api_params),
     )
-    app.router.add_get("/php/getPVDataDetails.php", _get_pv_data_details(mock_api_params))
-    app.router.add_post("/php/newMeterTable.php", _post_new_meter_table(mock_api_params))
-    app.router.add_get(
-        "/php/ownConsumption.php", _response_from_file("ownConsumption.php", params=mock_api_params)
-    )
+    app.router.add_get("/api/zaehlerdaten", _get_meter_data_with_param(mock_api_params))
+    app.router.add_get("/api/pv-details", _get_pv_data_details(mock_api_params))
+    app.router.add_post("/api/zaehlertabelle", _post_new_meter_table(mock_api_params))
+    app.router.add_get("/verbrauch", _response_from_file("verbrauch.html", params=mock_api_params))
     return await aiohttp_client(app)
 
 

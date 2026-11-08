@@ -21,7 +21,7 @@ async def get_daily_photovoltaic_data(
     logger.debug("Scraping daily photovoltaic data on %s...", date)
     response, _ = await auth.request(
         "GET",
-        "php/getPVDataDetails.php",
+        "api/pv-details",
         params={
             "from": date.isoformat(),
             "intVal": "Tag",
@@ -42,7 +42,7 @@ async def get_monthly_photovoltaic_data(
     logger.debug("Scraping monthly photovoltaic data on %s...", date)
     response, _ = await auth.request(
         "GET",
-        "php/getPVDataDetails.php",
+        "api/pv-details",
         params={
             "from": date.isoformat(),
             "intVal": "Monat",

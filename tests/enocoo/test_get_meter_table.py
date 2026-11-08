@@ -146,7 +146,7 @@ async def test_fallback_to_previous_day(
 
         if date == TODAY:
             with (
-                mock_api_params.response_data_path / "newMeterTable.noDataYetForCurrentDay.php"
+                mock_api_params.response_data_path / "zaehlertabelle.noDataYetForCurrentDay.html"
             ).open("rb") as f:
                 return f.read()
         elif date == TODAY - dt.timedelta(days=1):
@@ -186,7 +186,7 @@ async def test_fallback_failing(
 
         if date == TODAY:
             with (
-                mock_api_params.response_data_path / "newMeterTable.noDataForCurrentDay.php"
+                mock_api_params.response_data_path / "zaehlertabelle.noDataForCurrentDay.html"
             ).open("rb") as f:
                 return f.read()
         elif date == TODAY - dt.timedelta(days=1):
